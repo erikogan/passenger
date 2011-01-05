@@ -139,9 +139,11 @@ dd.prop {
       <!--#if expr="${SERVER_NAME} = /stealthymonkeys.com/"-->
         <!--#set var="repo" value="erikogan" -->
         <!--#set var="prefix" value="my fork of the main" -->
+        <!--#set var="suffix" value=" (regularly merged into the main repository)" -->
       <!--#else -->
         <!--#set var="repo" value="FooBarWidget" -->
         <!--#set var="prefix" value="the" -->
+        <!--#set var="suffix" value="" -->
       <!--#endif -->
 
       <p>
@@ -149,8 +151,8 @@ dd.prop {
         in
         <a href="http://github.com/<!--#echo var="repo"
         -->/passenger/tree/master/rpm"><!--#echo var="prefix" --> GitHub
-        Passenger Repository</a>. Comments, questions, patches, and pull
-        requests are always welcome.
+        Passenger Repository</a><!--#echo var="suffix" -->. Comments,
+        questions, patches, and pull requests are always welcome.
       </p>
 
       <h2><!--#echo var="REQUEST_URI" --></h2>
