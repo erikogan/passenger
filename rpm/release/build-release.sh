@@ -5,21 +5,24 @@ BUILD_VERBOSITY=${BUILD_VERBOSITY:-0}
 
 reldir=`dirname $0`
 stage=./stage-release
-rm -rf $stage
-mkdir -p $stage/{SRPMS,SOURCES}
-ln -s `readlink -f $reldir/mirrors` $stage/SOURCES/mirrors-passenger
-ln -s `readlink -f $reldir/RPM-GPG-KEY-stealthymonkeys` $stage/SOURCES
+rpmstage=/tmp/passenger-release-build.$$
+rm -rf $stage $rpmstage
+trap "rm -rf $rpmstage" EXIT
+mkdir -p $stage $rpmstage/{SRPMS,SOURCES}
+ln -s `readlink -f $reldir/mirrors` $rpmstage/SOURCES/mirrors-passenger
+ln -s `readlink -f $reldir/RPM-GPG-KEY-stealthymonkeys` $rpmstage/SOURCES
+ln -s `readlink -f $reldir/RPM-GPG-KEY-stealthymonkeys.rhel5` $rpmstage/SOURCES
 
-rpmbuild-md5 --define "_topdir $stage" --define 'dist %nil' -bs passenger-release.spec
+rpmbuild-md5 --define "_topdir $rpmstage" --define 'dist %nil' -bs passenger-release.spec
 rm -rf $stage/{SOURCES,BUILD*,RPMS,SPECS}
-srpm=`ls -1t $stage/SRPMS/*rpm | head -1`
+srpm=`ls -1t $rpmstage/SRPMS/*rpm | head -1`
 
 for ver in {epel-5,fedora-{13,14}}
 do
 	echo --------- $ver
 	xdir=$stage/`echo $ver | tr '-' '/'`/x86_64
 	idir=`echo $xdir | sed -e 's/x86_64/i386/'`
-	mock -r passenger-$ver-x86_64 $srpm
+	mock -v -r passenger-$ver-x86_64 $srpm
 	mkdir -p $xdir $idir
 	cp /var/lib/mock/passenger-$ver-x86_64/result/*noarch.rpm $xdir
 	cp /var/lib/mock/passenger-$ver-x86_64/result/*noarch.rpm $idir
@@ -29,7 +32,10 @@ do
 	cd -
 done
 
+mkdir $stage/SRPMS
+cp $srpm $stage/SRPMS
+
 mv $stage/epel $stage/rhel
 # Don't resign symlinks
 # -- arguably this should be done once for each file, since they're copied
-rpm --addsign `find $stage -type f`
+#rpm --addsign `find $stage -type f`
