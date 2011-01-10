@@ -149,7 +149,7 @@ if options.key?(:mock_base_dir) || options.key?(:mock_repo_dir)
 end
 
 limit = ARGV
-if options.key?(:single)
+if options[:single]
 	# This can probably be simplified
 	limit = [`rpm --queryformat '%{name}\t%{version}' -qf /etc/redhat-release`.sub(/(\w+)-release\t(\d+)/,'\1-\2').sub(/^(rhel|centos|sl)-/,'epel-') + "-#{`rpm -E '%{_host_cpu}'`.strip}"]
 end
@@ -238,7 +238,7 @@ configs.each do |cfg|
 
 	idir = './pkg'
 
-	unless options.key?(:single)
+	unless options[:single]
 		idir = File.join stage_dir, cfg.split(/-/)
 	end
 
@@ -273,7 +273,7 @@ configs.each do |cfg|
 	FileUtils.rm_f(Dir["#{idir}/*.src.rpm"], :verbose => @verbosity > 1)
 end
 
-unless options.key?(:single)
+unless options[:single]
 	if File.directory?("#{stage_dir}/epel")
 		FileUtils.mv "#{stage_dir}/epel", "#{stage_dir}/rhel", :verbose => @verbosity > 0
 	end
@@ -293,9 +293,51 @@ unless `rpm -E '%{?_gpg_name}'`.strip == ''
 	signor=`rpm -E '%{_gpg_name}'`.strip
 	key=`gpg --list-key #{signor} | grep '^pub' | awk '{print $2}' | cut -d/ -f2`
 	# Don't re-sign packages already signed by your key
-	files=Dir["#{options.key?(:single) ? 'pkg' : stage_dir}/**/*.rpm"].select do |rpm|
-		!File.symlink?(rpm) && (`rpm --checksig #{rpm}` !~ /#{key}/)
+	files=Dir["#{options[:single] ? 'pkg' : stage_dir}/**/*.rpm"].inject([[],[]]) do |m,rpm|
+		if !File.symlink?(rpm) && (`rpm --checksig #{rpm}` !~ /#{key}/)
+			if rpm.include?('rhel/5')
+				m[1].push(rpm)
+			else
+				m[0].push(rpm)
+			end
+		end
+		m
 	end
 
+	rhel_signor = ''
+	if (options[:single] && limit[0].include?('epel-5')) || !files[1].empty?
+		(sig,enc)= `gpg --list-key #{signor} | egrep '^(pub|sub)' | awk '{print $2}'`.strip.split(/\n/).map {|f| f.split(/\//)}
+		if sig[0].to_i > 1024 || enc[0].to_i > 1024 || sig[1] != 'D' || enc[1] != 'g'
+			warn "RHEL5 RPM chokes on GPG keys larger than 1024 bits or types other than DSA/ElGaml (yes, really)."
+			rhel5_signor = `rpm -E '%{?_gpg_name_rhel5}'`.strip
+			if !rhel5_signor.empty?
+				warn "Found a _gpg_name_rhel5 macro, we'll use that"
+			else
+				warn "Please enter the email address for your RHEL5 signing key, or hit Control-C to cancel."
+				warn "(You can also define the _gpg_name_rhel5 rpm macro and we'll use that instead)"
+				begin
+					rhel5_signor = STDIN.readline.strip
+				rescue EOFError
+					# noop
+				end
+			end
+
+			rhel_packages = files[options[:single] ? 0 : 1]
+			unless rhel_packages.empty?
+				if rhel5_signor.empty?
+					warn "Cowardly refusing to sign RHEL packages with your key, since it will break therm."
+				else
+					unless noisy_system('rpm', '--addsign', '--define', "_gpg_name #{rhel5_signor}", *rhel_packages)
+						abort "Error signing RHEL packages, see above for error"
+					end
+				end
+			end
+			files = options[:single] ? [] : files[0]
+		end
+	end
+
+	files.flatten!
+
 	noisy_system('rpm', '--addsign', *files)
+	exit $?
 end
