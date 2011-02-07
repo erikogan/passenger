@@ -13,12 +13,12 @@
   %define passenger_version 3.0.2
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 1%{?dist}
+  %define passenger_release 2%{?dist}
 %endif
 %define passenger_epoch 1
 
 %if %{?nginx_version:0}%{?!nginx_version:1}
-  %define nginx_version 0.8.53
+  %define nginx_version 0.8.54
 %endif
 %define nginx_release %{passenger_version}_%{passenger_release}
 %define nginx_user	passenger
@@ -306,6 +306,7 @@ export LIBEV_LIBS='-lev'
 %else
   %{rake} package
   %{rake} apache2
+  %{rake} nginx
 
   ### SELINUX
   rm -rf selinux
@@ -367,6 +368,7 @@ export LIBEV_LIBS='-lev'
     --with-file-aio \
     --with-mail_ssl_module \
     --with-ipv6 \
+    --add-module="$RPM_BUILD_DIR/passenger-%{passenger_version}/ext/nginx" \
     --with-cc-opt="%{nginx_ccopt} $(pcre-config --cflags)" \
     --with-ld-opt="-Wl,-E" # so the perl module finds its symbols
 
@@ -597,6 +599,11 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sat Feb  5 2011 Erik Ogan <erik@stealthymonkeys.com> - 3.0.2-2
+- Bump nginx to 0.8.54
+- Fix nginx-passenger to include passenger (somehow this got lost in the
+  shuffle, yet tests continued to pass. Testing updated as well)
+
 * Thu Dec 16 2010 Erik Ogan <erik@stealthymonkeys.com> - 3.0.2-1
 - Bump to 3.0.2
 
