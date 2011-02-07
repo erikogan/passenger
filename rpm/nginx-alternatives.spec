@@ -5,12 +5,12 @@
 # This package is meant to be obsoleted by a future nginx package that
 # will provide the same feature
 
-%define perldir %(perl -MConfig -e 'print $Config{installarchlib}')
+%define perldir %(perl -MConfig -e 'print $Config{vendorarch}')
 
 Summary: Alternatives aware nginx
 Name: nginx-alternatives
 Version: 0.0.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: MIT
 Group: System Environment/Daemons
 #Source0: %{name}-%{version}.tar.gz
@@ -87,6 +87,9 @@ fi
 %doc README.%{name}
 
 %changelog
+* Sun Feb  6 2011 Erik Ogan <erik@stealthymonkeys.com> - 0.0.1-4
+- Change the value of %%{perldir}, to better support EPEL 5
+
 * Sat Oct 30 2010 Erik Ogan <erik@stealthymonkeys.com> - 0.0.1-3
 - Add slaves for the perl module
 
