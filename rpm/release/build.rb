@@ -282,11 +282,11 @@ configs.each do |cfg|
 		cache_key = cfg.split(/-/).first(2).join('-')
 
 		noarch_builds.each do |v|
-			(name, srpm, cache) = *v
+			(name, noarch_srpm, cache) = *v
 			if cache[cache_key]
 				FileUtils.cp(cache[cache_key], idir, :verbose => @verbosity > 0)
 			else
-				unless noisy_system('mock', '-r', pcfg, "#{stage_dir}/SRPMS/#{srpm}", *mockvolume)
+				unless noisy_system('mock', '-r', pcfg, "#{stage_dir}/SRPMS/#{noarch_srpm}", *mockvolume)
 					abort "Release Mock failed. See above for details"
 				end
 
