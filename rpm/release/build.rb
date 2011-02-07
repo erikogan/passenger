@@ -129,6 +129,11 @@ OptionParser.new do |opts|
 		options[:release] = true
 	end
 
+	opts.on('-a', '--include-nginx-alternatives', "Also build nginx-alternatives packages") do
+		options[:nginx_alt] = true
+	end
+
+
 	opts.on_tail("-h", "--help", "Show this message") do
 		puts opts
 		exit
@@ -228,9 +233,23 @@ if options[:release]
 							 "#{stage_dir}/SRPMS", :verbose => @verbosity > 0)
 end
 
+if options[:nginx_alt]
+  FileUtils.ln_sf(Dir["#{Dir.getwd}/doc/README.nginx-alternatives"], srcdir, :verbose => @verbosity > 0)
+	unless noisy_system(rpmbuild, *((@verbosity > 0 ? [] : %w{--quiet}) + ['--define', 'dist %nil', '-bs', "nginx-alternatives.spec"]))
+		abort "No nginx-alternatives SRPM was built. See above for the error"
+	end
+	nginx_alt_version = `grep '^Version:' nginx-alternatives.spec | awk '{print $2}'`.sub(/%\{\?dist\}/, '').strip
+	nginx_alt_release = `grep '^Release:' nginx-alternatives.spec | awk '{print $2}'`.to_i
+	@nginx_alt_srpm = "nginx-alternatives-#{nginx_alt_version}-#{nginx_alt_release}.src.rpm"
+	FileUtils.cp("#{rpmtopdir}/SRPMS/nginx-alternatives-#{nginx_alt_version}-#{nginx_alt_release}.src.rpm",
+							 "#{stage_dir}/SRPMS", :verbose => @verbosity > 0)
+
+end
+
 mockvolume = @verbosity >= 2 ? %w{-v} : @verbosity < 0 ? %w{-q} : []
 
 @release_cache = {}
+@nginx_alt_cache = {}
 
 configs.each do |cfg|
 	puts "---------------------- Building #{cfg}" if @verbosity >= 0
@@ -254,19 +273,27 @@ configs.each do |cfg|
 		FileUtils.cp(Dir["#{options[:extra_packages]}/*.rpm"], idir, :verbose => @verbosity > 0)
 	end
 
-	if options[:release]
-		cache_key = cfg.split(/-/).first(2).join('-')
+	if options[:release] || options[:nginx_alt]
 		# There is little sense in rebuilding a noarch package over & over
-		if @release_cache[cache_key]
-			FileUtils.cp(@release_cache[cache_key], idir, :verbose => @verbosity > 0)
-		else
-			unless noisy_system('mock', '-r', pcfg, "#{stage_dir}/SRPMS/#{@rel_srpm}", *mockvolume)
-				abort "Release Mock failed. See above for details"
-			end
+		noarch_builds = []
+		noarch_builds.push(['passenger-release', @rel_srpm, @release_cache]) if options[:release]
+		noarch_builds.push(['nginx-alternatives', @nginx_alt_srpm, @nginx_alt_cache]) if options[:nginx_alt]
 
-			FileUtils.cp(Dir["#{mock_base_dir}/#{pcfg}/result/*.rpm"],
-									 idir, :verbose => @verbosity > 0)
-			@release_cache[cache_key] = Dir["#{idir}/passenger-release*noarch.rpm"].last
+		cache_key = cfg.split(/-/).first(2).join('-')
+
+		noarch_builds.each do |v|
+			(name, srpm, cache) = *v
+			if cache[cache_key]
+				FileUtils.cp(cache[cache_key], idir, :verbose => @verbosity > 0)
+			else
+				unless noisy_system('mock', '-r', pcfg, "#{stage_dir}/SRPMS/#{srpm}", *mockvolume)
+					abort "Release Mock failed. See above for details"
+				end
+
+				FileUtils.cp(Dir["#{mock_base_dir}/#{pcfg}/result/*.rpm"],
+										 idir, :verbose => @verbosity > 0)
+				cache[cache_key] = Dir["#{idir}/#{name}*noarch.rpm"].last
+			end
 		end
 	end
 

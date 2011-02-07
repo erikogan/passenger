@@ -64,7 +64,7 @@ namespace :package do
 	task 'rpm' => [:package, :rpm_verbosity] do
 		test_setup
 		copy_tarball(@verbosity)
-		noisy_system(*(%w{./rpm/release/build.rb --single} + ["--stage-dir=#{ENV['stage_dir'] || 'pkg'}", "--extra-packages=#{ENV['extra_packages'] || 'release/mock-repo'}"] + @build_verbosity))
+		noisy_system(*(%w{./rpm/release/build.rb --single --include-nginx-alternatives} + ["--stage-dir=#{ENV['stage_dir'] || 'pkg'}", "--extra-packages=#{ENV['extra_packages'] || 'release/mock-repo'}"] + @build_verbosity))
 	end
 
 	desc "Build a Yum repository for the current release"
