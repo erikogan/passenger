@@ -567,7 +567,8 @@ rm -rf %{buildroot}
 %files -f %{base_files}
 
 %files native
-%{geminstdir}/agents
+%{geminstdir}/agents/PassengerLoggingAgent
+%{geminstdir}/agents/PassengerWatchdog
 %{sharedir}/selinux/packages/%{name}/%{name}.pp
 %{_var}/log/passenger-analytics
 
@@ -581,6 +582,7 @@ rm -rf %{buildroot}
 %doc doc/Users\ guide\ Apache.html
 %doc doc/Users\ guide\ Apache.txt
 %{_libdir}/httpd/modules/mod_passenger.so
+%{geminstdir}/agents/apache2
 %config %{httpd_confdir}/passenger.conf
 
 %files -n nginx-passenger
@@ -588,6 +590,7 @@ rm -rf %{buildroot}
 %doc doc/Users\ guide\ Nginx.txt
 %config %{nginx_confdir}/conf.d/passenger.conf
 /usr/sbin/nginx.passenger
+%{geminstdir}/agents/nginx
 %{perldir}/auto/nginx/nginx*
 %{perldir}/nginx*
 %{_mandir}/man3/nginx*
@@ -603,6 +606,7 @@ rm -rf %{buildroot}
 - Bump nginx to 0.8.54
 - Fix nginx-passenger to include passenger (somehow this got lost in the
   shuffle, yet tests continued to pass. Testing updated as well)
+- Move agents/apache2 & agents/nginx into their respective packages
 
 * Thu Dec 16 2010 Erik Ogan <erik@stealthymonkeys.com> - 3.0.2-1
 - Bump to 3.0.2
