@@ -99,6 +99,7 @@ Requires: rubygem(daemon_controller) >= 0.2.5
 Requires: rubygem(file-tail)
 Requires: rubygem(rack)
 BuildRequires: ruby-devel
+%if !%{only_native_libs}
 BuildRequires: httpd-devel
 BuildRequires: rubygems
 BuildRequires: rubygem(rake) >= 0.8.1
@@ -138,6 +139,7 @@ BuildRequires: perl(ExtUtils::Embed)
 BuildRequires: libxslt-devel
 BuildRequires: GeoIP-devel
 BuildRequires: gd-devel
+%endif # only_native_libs
 # Can't have a noarch package with an arch'd subpackage
 #BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{passenger_version}
@@ -607,6 +609,7 @@ rm -rf %{buildroot}
 - Fix nginx-passenger to include passenger (somehow this got lost in the
   shuffle, yet tests continued to pass. Testing updated as well)
 - Move agents/apache2 & agents/nginx into their respective packages
+- Fix BuildRequires when only_native_libs is defined
 
 * Thu Dec 16 2010 Erik Ogan <erik@stealthymonkeys.com> - 3.0.2-1
 - Bump to 3.0.2
