@@ -10,10 +10,10 @@
 
 %define gemname passenger
 %if %{?passenger_version:0}%{?!passenger_version:1}
-  %define passenger_version 3.0.2
+  %define passenger_version 3.0.3
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 2%{?dist}
+  %define passenger_release 1%{?dist}
 %endif
 %define passenger_epoch 1
 
@@ -604,6 +604,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Feb 25 2011 Erik Ogan <erik@stealthymonkeys.com> - 1:3.0.3-1
+- Bump to 3.0.3
+
 * Sat Feb  5 2011 Erik Ogan <erik@stealthymonkeys.com> - 3.0.2-2
 - Bump nginx to 0.8.54
 - Fix nginx-passenger to include passenger (somehow this got lost in the
