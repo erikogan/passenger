@@ -91,6 +91,7 @@ Source200: rubygem-passenger.te
 # # finding the correct file
 # Source300: http://github.com/gnosek/nginx-upstream-fair/tarball/master?/nginx-upstream-fair.tar.gz
 Patch0: passenger-force-native.patch
+Patch1: passenger-prevent-dot-cleanup.patch
 BuildRoot: %{_tmppath}/%{name}-%{passenger_version}-%{passenger_release}-root-%(%{__id_u} -n)
 Requires: rubygems
 Requires: rubygem(rake) >= 0.8.1
@@ -268,6 +269,10 @@ This package includes an nginx server with Passenger compiled in.
 # # Fix the CWD
 # %setup -q -T -D -n %{gemname}-%{passenger_version}
 %patch0 -p1
+
+# FC14 doesn't like the Doxygen MD5, and regenerates the files, removing
+# the *.dot files in the process. Prevent that removal
+%patch1 -p1
 
 # Rather than hard-coding the path into the patch, change it here so
 # that it's consistent with the %{ruby} macro, which might be defined on

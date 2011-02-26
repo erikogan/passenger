@@ -1,0 +1,13 @@
+diff --git a/doc/Doxyfile b/doc/Doxyfile
+index e19f13c..d332ff5 100644
+--- a/doc/Doxyfile
++++ b/doc/Doxyfile
+@@ -234,7 +234,7 @@ MAX_DOT_GRAPH_DEPTH    = 1000
+ DOT_TRANSPARENT        = NO
+ DOT_MULTI_TARGETS      = NO
+ GENERATE_LEGEND        = YES
+-DOT_CLEANUP            = YES
++DOT_CLEANUP            = NO
+ #---------------------------------------------------------------------------
+ # Configuration::additions related to the search engine   
+ #---------------------------------------------------------------------------
