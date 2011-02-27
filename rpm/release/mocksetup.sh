@@ -30,6 +30,8 @@ do
 		s{opts\['root'\]\s*=\s*'}{${&}passenger-}; #';
 		s{groupinstall [^']+}{$& Ruby build-passenger}; #'
 		s{\binstall buildsys-build}{$& ruby ruby-devel $prereqs};
+		$current_repo = $1 if /^\[([\w-]+)\]/;
+		s/^enabled=0/enabled=1/ if $current_repo eq 'updates-released';
 		s{^"""}{<<EndRepo . $&}e; #"
 
 		[build-passenger]
