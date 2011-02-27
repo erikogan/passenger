@@ -33,7 +33,8 @@
 %define httpd_confdir	%{_sysconfdir}/httpd/conf.d
 
 # Macros on the command-line overrides these defaults. You should also
-# make sure these match the binaries found in your PATH
+# make sure these match the binaries found in your PATH. Also, if you
+# change one, you'll probably want to change the others.
 %{?!ruby: %define ruby /usr/bin/ruby}
 %{?!rake: %define rake /usr/bin/rake}
 %{?!gem:  %define gem  /usr/bin/gem}
@@ -41,6 +42,12 @@
 # Debug packages are currently broken. So don't even build them
 %define debug_package %nil
 
+# Rather than requiring ruby (yum-builddep probably won't have it), set
+# reasonable defaults to get us installed, then once ruby is installed via
+# BuildRequires, it will use the correct values.
+#
+# There is SOME danger here if the values don't match and cause
+# different BuildRequires to be visible. So DON'T DO THAT. :)
 %define ruby_installed %(test -f %{ruby} && test -f %{gem} && echo 1 || echo 0)
 
 %if %{ruby_installed}
@@ -51,11 +58,10 @@
   # %define gemdir %(%{ruby} -rubygems -e 'puts Gem::dir' 2>/dev/null)
   %define gemdir %(%{gem} env gemdir 2>/dev/null)
 %else
-  %define ruby_sitelib ruby_sitelib_default
-  %define ruby_version_patch ruby_version_patch_default
-  # Tempting to just set this to 0
-  %define broken_gem_version broken_gem_version_default
-  %define gemdir gemdir_default
+  %define ruby_sitelib /usr/lib/ruby/site_ruby/1.8
+  %define ruby_version_patch 1.8.7.330
+  %define broken_gem_version 0
+  %define gemdir /usr/lib/ruby/gems/1.8
 %endif
 
 %if %{broken_gem_version}
