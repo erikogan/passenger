@@ -197,8 +197,53 @@ specdir="/tmp/#{`whoami`.strip}-specfile-#{Process.pid}"
 FileUtils.rm_rf(specdir, :verbose => @verbosity > 0)
 begin
 	FileUtils.mkdir_p(specdir, :verbose => @verbosity > 0)
-	FileUtils.cp('passenger.spec', specdir, :verbose => @verbosity > 0)
-	# + must be escaped, but * doesn't? And people wonder why I hate sed.
+	# FileUtils.cp('passenger.spec', specdir, :verbose => @verbosity > 0)
+	# Munge the specfile to not require ruby in the mock environment (until later, anyway)
+	macros = {}
+	# 1.9 has spoilt me. Time to roll my own
+	# IO.popen(['egrep', '^ *%define.*%\(%\{(ruby|gem)\}', 'passenger.spec']) do |io|
+	# 	io.readlines.each do |line|
+	# 		line.chomp!
+	# 		match = /%define (\w+)\s+%\(%\{(\w+)\}\s+(.*)\)/.match(line)
+	# 		macros[match[1]] = %x[#{match[2]} #{match[3]}]
+	# 	end
+	# end
+
+	IO.popen('-') do |io|
+		unless(io)
+			exec('egrep', '^ *%define.*%\(%\{(ruby|gem)\}', 'passenger.spec')
+			abort "Can't exec!"
+		end
+
+		io.readlines.each do |line|
+			line.chomp!
+			match = /%define (\w+)\s+%\(%\{(\w+)\}\s+(.*)\)/.match(line)
+			macros["#{match[1]}_default"] = %x[#{match[2]} #{match[3]}].chomp
+		end
+	end
+
+	args = macros.keys.inject([]) {|m,k| m.push("-D#{k}=#{macros[k]}");m}
+	args.unshift("m4")
+	# args.push('passenger.spec')
+	puts(args.join(' ') + " > #{specdir}/passenger.spec") if @verbosity > 0
+	# IO.popen(args, "w", :out => "#{specdir}/passenger.spec") {|io| io.close}
+
+	IO.popen('-', "w") do |io|
+		unless io
+			# I get a EBADF if I pass the args directly to reopen (??), even though docs say it should work
+			new_out = File.open("#{specdir}/passenger.spec", "w")
+			STDOUT.reopen(new_out)
+			exec(*args)
+			abort "Can't exec"
+		end
+		io.puts("changequote(<!!,!!>)")
+		File.open('passenger.spec') do |sf|
+			io.write(sf.read)
+		end
+		io.close
+	end
+
+	# + must be escaped, but * shouldn't? And people wonder why I hate sed.
 	abort "Can't edit specfile" unless noisy_system('sed', '-i',
 		'-e', "s/^\\(\\([[:space:]]*\\)%define[[:space:]]\\+passenger_version[[:space:]]\\)\\+[0-9.]\\+.*/\\2# From Passenger Source\\n\\1#{PhusionPassenger::VERSION_STRING}/",
 		'-e', "s/^\\(\\([[:space:]]*\\)%define[[:space:]]\\+nginx_version[[:space:]]\\)\\+[0-9.]\\+.*/\\2# From Passenger Source\\n\\1#{PhusionPassenger::PREFERRED_NGINX_VERSION}/",

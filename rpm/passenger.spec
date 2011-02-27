@@ -41,12 +41,22 @@
 # Debug packages are currently broken. So don't even build them
 %define debug_package %nil
 
-%define ruby_sitelib %(%{ruby} -rrbconfig -e "puts Config::CONFIG['sitelibdir']")
+%define ruby_installed %(test -f %{ruby} && test -f %{gem} && echo 1 || echo 0)
 
-%define ruby_version_patch %(%{ruby} -e 'puts "#{RUBY_VERSION}#{defined?(RUBY_PATCHLEVEL) ? %q{.} + RUBY_PATCHLEVEL.to_s : nil}"')
-
-# Does Gem::Version crash&burn on the version defined above? (RHEL might)
-%define broken_gem_version %(%{ruby} -rrubygems -e 'begin ; Gem::Version.create "%{passenger_version}" ; rescue => e ; puts 1 ; exit ; end ; puts 0')
+%if %{ruby_installed}
+  %define ruby_sitelib %(%{ruby} -rrbconfig -e "puts Config::CONFIG['sitelibdir']")
+  %define ruby_version_patch %(%{ruby} -e 'puts "#{RUBY_VERSION}#{defined?(RUBY_PATCHLEVEL) ? %q{.} + RUBY_PATCHLEVEL.to_s : nil}"')
+  # Does Gem::Version crash&burn on the version defined above? (RHEL5 might)
+  %define broken_gem_version %(%{ruby} -rrubygems -e 'begin ; Gem::Version.create "%{passenger_version}" ; rescue => e ; puts 1 ; exit ; end ; puts 0')
+  # %define gemdir %(%{ruby} -rubygems -e 'puts Gem::dir' 2>/dev/null)
+  %define gemdir %(%{gem} env gemdir 2>/dev/null)
+%else
+  %define ruby_sitelib ruby_sitelib_default
+  %define ruby_version_patch ruby_version_patch_default
+  # Tempting to just set this to 0
+  %define broken_gem_version broken_gem_version_default
+  %define gemdir gemdir_default
+%endif
 
 %if %{broken_gem_version}
   # Strip any non-numeric version part
@@ -58,7 +68,6 @@
 # Invoke a shell to do a comparison, silly but it works across versions of RPM
 %define gem_version_mismatch %([ '%{passenger_version}' != '%{gemversion}' ] && echo 1 || echo 0)
 
-%define gemdir %(%{ruby} -rubygems -e 'puts Gem::dir' 2>/dev/null)
 %define geminstdir %{gemdir}/gems/%{gemname}-%{gemversion}
 
 %define perldir %(perl -MConfig -e 'print $Config{installvendorarch}')
@@ -106,7 +115,9 @@ BuildRequires: rubygems
 BuildRequires: rubygem(rake) >= 0.8.1
 BuildRequires: rubygem(rack)
 BuildRequires: rubygem(fastthread) >= 1.0.1
+BuildRequires: pcre-devel
 %if %{?fedora:1}%{?!fedora:0}
+BuildRequires: perl-ExtUtils-Embed
 BuildRequires: libcurl-devel
 BuildRequires: source-highlight
 %else

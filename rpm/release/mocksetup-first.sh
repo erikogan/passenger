@@ -4,7 +4,7 @@
 BUILD_VERBOSITY=${BUILD_VERBOSITY:-0}
 [ $BUILD_VERBOSITY -ge 3 ] && set -x
 
-declare -a required_packages=(mock)
+declare -a required_packages=(mock m4)
 if grep -iq fedora /etc/redhat-release ; then
 		# fedora-packager has rpmbuild-md5 for the SRPM
 		required_packages=( ${required_packages[@]} fedora-packager )

@@ -28,8 +28,8 @@ do
 		}
 
 		s{opts\['root'\]\s*=\s*'}{${&}passenger-}; #';
-		s{groupinstall [^']+}{$& Ruby build-passenger}; #'
-		s{\binstall buildsys-build}{$& ruby ruby-devel $prereqs};
+		# s{groupinstall [^']+}{$& Ruby build-passenger}; #'
+		# s{\binstall buildsys-build}{$& ruby ruby-devel $prereqs};
 		s{^"""}{<<EndRepo . $&}e; #"
 
 		[build-passenger]
