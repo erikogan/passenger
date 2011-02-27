@@ -53,7 +53,7 @@ if [ $BUILD_VERBOSITY -ge 1 ]; then
 	fi
 fi
 
-cp -ra `dirname $0`/mock-repo/* $repo
+cp -ra `dirname $0`/mock-repo/* $repo || true
 chgrp -R mock $repo 2>/dev/null || true
 
 createrepo_volume=
