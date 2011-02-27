@@ -71,7 +71,9 @@ namespace :package do
 	task 'yum' => [:package, :rpm_verbosity] do
 		test_setup(*%w{-p createrepo -p rubygem-gem2rpm})
 		copy_tarball(@verbosity)
-		noisy_system(*(%w{./rpm/release/build.rb --include-release} + ["--stage-dir=#{ENV['stage_dir'] || 'yum-repo'}", "--extra-packages=#{ENV['extra_packages'] || 'release/mock-repo'}"] + @build_verbosity))
+		unless noisy_system(*(%w{./rpm/release/build.rb --include-release} + ["--stage-dir=#{ENV['stage_dir'] || 'yum-repo'}", "--extra-packages=#{ENV['extra_packages'] || 'release/mock-repo'}"] + @build_verbosity))
+      abort "Build failed!"
+	  end
 		repo=File.expand_path("#{ENV['stage_dir'] || 'yum-repo'}", 'rpm')
 		Dir["#{repo}/{fedora,rhel}/*/{i386,x86_64}"].each do |dir|
 			noisy_system('createrepo', dir)
