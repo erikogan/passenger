@@ -10,7 +10,7 @@
 
 %define gemname passenger
 %if %{?passenger_version:0}%{?!passenger_version:1}
-  %define passenger_version 3.0.3
+  %define passenger_version 3.0.5
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
   %define passenger_release 1%{?dist}
@@ -626,6 +626,12 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Mar 11 2011 Erik Ogan <erik@stealthymonkeys.com> - 1:3.0.5-1
+- Bump to 3.0.5
+
+* Wed Mar 2 2011 Erik Ogan <erik@stealthymonkeys.com> - 1:3.0.4-1
+- Bump to 3.0.4
+
 * Fri Feb 25 2011 Erik Ogan <erik@stealthymonkeys.com> - 1:3.0.3-1
 - Bump to 3.0.3
 
