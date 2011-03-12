@@ -289,7 +289,11 @@ This package includes an nginx server with Passenger compiled in.
 
 # FC14 doesn't like the Doxygen MD5, and regenerates the files, removing
 # the *.dot files in the process. Prevent that removal
-%patch1 -p1
+# %patch1 -p1
+
+# FC14 doesn't like the new doxygen sources at all, removing them to
+# regenerate all of it, per Hong Li's recommendation
+rm -rf doc/cxxapi
 
 # Rather than hard-coding the path into the patch, change it here so
 # that it's consistent with the %{ruby} macro, which might be defined on
