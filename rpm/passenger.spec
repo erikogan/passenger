@@ -13,7 +13,7 @@
   %define passenger_version 3.0.6
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 1%{?dist}
+  %define passenger_release 2%{?dist}
 %endif
 %define passenger_epoch 1
 
@@ -112,7 +112,6 @@ Requires: rubygems
 Requires: rubygem(rake) >= 0.8.1
 Requires: rubygem(fastthread) >= 1.0.1
 Requires: rubygem(daemon_controller) >= 0.2.5
-Requires: rubygem(file-tail)
 Requires: rubygem(rack)
 BuildRequires: ruby-devel
 %if !%{only_native_libs}
@@ -630,6 +629,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Apr  4 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.6-2
+- Removing requirement on file-tail
+
 * Sun Apr  3 2011  Erik Ogan <erik@steathymonkeys.com> - 1:3.0.6-1
 - Bump to 3.0.6
 
