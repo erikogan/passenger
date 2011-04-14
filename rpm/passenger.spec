@@ -10,15 +10,15 @@
 
 %define gemname passenger
 %if %{?passenger_version:0}%{?!passenger_version:1}
-  %define passenger_version 3.0.6
+  %define passenger_version 3.0.7
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 2%{?dist}
+  %define passenger_release 1%{?dist}
 %endif
 %define passenger_epoch 1
 
 %if %{?nginx_version:0}%{?!nginx_version:1}
-  %define nginx_version 0.8.54
+  %define nginx_version 1.0.0
 %endif
 %define nginx_release %{passenger_version}_%{passenger_release}
 %define nginx_user	passenger
@@ -629,6 +629,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Apr 14 2011  Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-1
+- Bump version to 3.0.7
+- Bump nginx version 1.0.0
+
 * Mon Apr  4 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.6-2
 - Removing requirement on file-tail
 
