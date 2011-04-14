@@ -353,7 +353,7 @@ unless `rpm -E '%{?_gpg_name}'`.strip == ''
 	# Don't re-sign packages already signed by your key
 	files=Dir["#{options[:single] ? 'pkg' : stage_dir}/**/*.rpm"].inject([[],[]]) do |m,rpm|
 		if !File.symlink?(rpm) && (`rpm --checksig #{rpm}` !~ /#{key}/)
-			if rpm.include?('rhel/5')
+			if rpm.include?('rhel/5') || rpm.include?('SRPM/')
 				m[1].push(rpm)
 			else
 				m[0].push(rpm)
