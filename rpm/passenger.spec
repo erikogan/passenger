@@ -13,7 +13,7 @@
   %define passenger_version 3.0.7
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 1%{?dist}
+  %define passenger_release 2%{?dist}
 %endif
 %define passenger_epoch 1
 
@@ -629,6 +629,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Apr 14 2011  Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-2
+- Add SELinux permissions for ps (and a boolean to turn it off: httpd_use_ps)
+
 * Thu Apr 14 2011  Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-1
 - Bump version to 3.0.7
 - Bump nginx version 1.0.0
