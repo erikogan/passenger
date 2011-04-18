@@ -13,7 +13,7 @@
   %define passenger_version 3.0.7
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 2%{?dist}
+  %define passenger_release 3%{?dist}
 %endif
 %define passenger_epoch 1
 
@@ -136,7 +136,6 @@ BuildRequires: graphviz
 BuildRequires: libev-devel
 %endif
 BuildRequires: rubygem(daemon_controller) >= 0.2.5
-BuildRequires: rubygem(file-tail)
 # native build deps
 %if %{?fedora:1}%{?!fedora:0}
 BuildRequires: selinux-policy
@@ -629,23 +628,26 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Thu Apr 14 2011  Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-2
+* Sun Apr 17 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-3%{?dist}
+- Remove file-tail from BuildRequire as well
+
+* Thu Apr 14 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-2
 - Add SELinux permissions for ps (and a boolean to turn it off: httpd_use_ps)
 
-* Thu Apr 14 2011  Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-1
+* Thu Apr 14 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-1
 - Bump version to 3.0.7
 - Bump nginx version 1.0.0
 
 * Mon Apr  4 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.6-2
 - Removing requirement on file-tail
 
-* Sun Apr  3 2011  Erik Ogan <erik@steathymonkeys.com> - 1:3.0.6-1
+* Sun Apr  3 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.6-1
 - Bump to 3.0.6
 
 * Fri Mar 11 2011 Erik Ogan <erik@stealthymonkeys.com> - 1:3.0.5-1
 - Bump to 3.0.5
 
-* Wed Mar 2 2011 Erik Ogan <erik@stealthymonkeys.com> - 1:3.0.4-1
+* Wed Mar  2 2011 Erik Ogan <erik@stealthymonkeys.com> - 1:3.0.4-1
 - Bump to 3.0.4
 
 * Fri Feb 25 2011 Erik Ogan <erik@stealthymonkeys.com> - 1:3.0.3-1
