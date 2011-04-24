@@ -5,12 +5,10 @@
 # This package is meant to be obsoleted by a future nginx package that
 # will provide the same feature
 
-%define perldir %(perl -MConfig -e 'print $Config{vendorarch}')
-
 Summary: Alternatives aware nginx
 Name: nginx-alternatives
 Version: 0.0.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: MIT
 Group: System Environment/Daemons
 #Source0: %{name}-%{version}.tar.gz
@@ -41,16 +39,17 @@ rm -rf $RPM_BUILD_ROOT
 
 %triggerin -- nginx
 if [ ! -L /usr/sbin/nginx ] ; then
+  perldir=`perl -MConfig -e 'print $Config{vendorarch}'`
   mv /usr/sbin/nginx /usr/sbin/nginx.base
-  mv %{perldir}/auto/nginx/nginx.so  %{perldir}/auto/nginx/nginx_base.so
-  mv %{perldir}/nginx.pm  %{perldir}/nginx_base.pm
+  mv $perldir/auto/nginx/nginx.so  $perldir/auto/nginx/nginx_base.so
+  mv $perldir/nginx.pm  $perldir/nginx_base.pm
   mv %{_mandir}/man3/nginx.3pm.gz %{_mandir}/man3/nginx_base.3pm.gz
 
   /usr/sbin/alternatives --install /usr/sbin/nginx nginx \
 				   /usr/sbin/nginx.base 30 \
-    --slave %{perldir}/auto/nginx/nginx.so nginx.so \
-	    %{perldir}/auto/nginx/nginx_base.so \
-    --slave %{perldir}/nginx.pm nginx.pm %{perldir}/nginx_base.pm \
+    --slave $perldir/auto/nginx/nginx.so nginx.so \
+	    $perldir/auto/nginx/nginx_base.so \
+    --slave $perldir/nginx.pm nginx.pm $perldir/nginx_base.pm \
     --slave %{_mandir}/man3/nginx.3pm.gz nginx.man \
 	    %{_mandir}/man3/nginx_base.3pm.gz
 fi
@@ -60,14 +59,14 @@ fi
 # put the expected binary back in place.
 %define undo_link \
   bin=`readlink -f /usr/sbin/nginx` \
-  so=`readlink -f %{perldir}/auto/nginx/nginx.so` \
-  pm=`readlink -f %{perldir}/nginx.pm` \
+  so=`readlink -f $perldir/auto/nginx/nginx.so` \
+  pm=`readlink -f $perldir/nginx.pm` \
   man=`readlink -f %{_mandir}/man3/nginx.3pm.gz` \
   /usr/sbin/alternatives --remove nginx /usr/sbin/nginx.base \
   /usr/sbin/alternatives --remove nginx $bin \
   mv -f $bin /usr/sbin/nginx \
-  mv -f $so %{perldir}/auto/nginx/nginx.so \
-  mv -f $pm %{perldir}/nginx.pm \
+  mv -f $so $perldir/auto/nginx/nginx.so \
+  mv -f $pm $perldir/nginx.pm \
   mv -f $man %{_mandir}/man3/nginx.3pm.gz
 
 
@@ -87,6 +86,9 @@ fi
 %doc README.%{name}
 
 %changelog
+* Sun Apr 24 2011 Fazli Sapuan <fuzzie360@gmail.com> - 0.0.1-5
+- Changed constant %{perldir} paths to dynamic $perldir paths.
+
 * Sun Feb  6 2011 Erik Ogan <erik@stealthymonkeys.com> - 0.0.1-4
 - Change the value of %%{perldir}, to better support EPEL 5
 
