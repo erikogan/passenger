@@ -58,6 +58,7 @@ fi
 # that this will have been reset back to base. Still good practice to
 # put the expected binary back in place.
 %define undo_link \
+  perldir=`perl -MConfig -e 'print $Config{vendorarch}'` \
   bin=`readlink -f /usr/sbin/nginx` \
   so=`readlink -f $perldir/auto/nginx/nginx.so` \
   pm=`readlink -f $perldir/nginx.pm` \
