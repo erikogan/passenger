@@ -133,6 +133,9 @@ OptionParser.new do |opts|
 		options[:nginx_alt] = true
 	end
 
+	opts.on('-k', '--skip-base-build', 'Skip the base build. Useful for only building supporting packages') do
+		options[:skip_base] = true
+	end
 
 	opts.on_tail("-h", "--help", "Show this message") do
 		puts opts
@@ -294,8 +297,10 @@ configs.each do |cfg|
 
 	# Move *mockvolume to the end, since it causes Ruby to cry in the middle
 	# Alt sol'n: *(foo + ['bar'] )
-	unless noisy_system('mock', '-r', pcfg, "#{stage_dir}/SRPMS/#{srpm}", *mockvolume)
-		abort "Mock failed. See above for details"
+	unless options[:skip_base]
+		unless noisy_system('mock', '-r', pcfg, "#{stage_dir}/SRPMS/#{srpm}", *mockvolume)
+			abort "Mock failed. See above for details"
+		end
 	end
 	FileUtils.mkdir_p(idir, :verbose => @verbosity > 0)
 	FileUtils.cp(Dir["#{mock_base_dir}/#{pcfg}/result/*.rpm"],
