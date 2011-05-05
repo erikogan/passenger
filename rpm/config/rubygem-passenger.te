@@ -1,4 +1,4 @@
-policy_module(rubygem_passenger, 1.1)
+policy_module(rubygem_passenger, 1.2)
 
 require {
   type httpd_t, httpd_tmp_t;
@@ -7,14 +7,17 @@ require {
 
 # This should use interface macros
 allow httpd_t httpd_tmp_t:sock_file { create write unlink getattr setattr };
-allow httpd_t self:capability { fowner sys_resource fsetid };
+allow httpd_t self:capability { fowner sys_resource fsetid sys_ptrace };
+
 
 # These allow the watchdog to run ps, but also any other httpd_t
 # process, too (CGI scripts run in httpd_sys_script_t, but PHP,
 # mod_perl, etc run in httpd_t)
 bool httpd_use_ps true;
 
+mcs_ptrace_all(httpd_t)
 if (httpd_use_ps) {
 domain_ptrace_all_domains(httpd_t)
-domain_dontaudit_search_all_domains_state(httpd_t)
+domain_read_all_domains_state(httpd_t)
 }
+
