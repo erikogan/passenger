@@ -131,6 +131,7 @@ Requires: rubygem(fastthread) >= 1.0.1
 Requires: rubygem(daemon_controller) >= 0.2.5
 Requires: rubygem(rack)
 BuildRequires: ruby-devel
+BuildRequires: gcc-c++
 %if !%{only_native_libs}
 BuildRequires: httpd-devel
 BuildRequires: rubygems
