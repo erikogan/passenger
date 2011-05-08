@@ -114,6 +114,7 @@ Requires: rubygem(fastthread) >= 1.0.1
 Requires: rubygem(daemon_controller) >= 0.2.5
 Requires: rubygem(rack)
 BuildRequires: ruby-devel
+BuildRequires: gcc-c++
 %if !%{only_native_libs}
 BuildRequires: httpd-devel
 BuildRequires: rubygems
@@ -548,6 +549,11 @@ EOF
     find %{buildroot}/%{geminstdir} \\( -type d \\( -name native -o -name agents \\) \\) -prune -o \\( -type f -print \\) | perl -pe 's{^%{buildroot}}{};s{^//}{/};s/([?|*'\\''\"])/\\\\$1/g;s{(^|\\n$)}{\"$&}g' >> %{base_files} \
     %{__arch_install_post}
 
+%post -n mod_passenger
+if [ $1 == 1 ]; then
+  fixfiles -R mod_passenger restore
+fi
+
 %post -n nginx-passenger
 if [ $1 == 1 ]; then
   /usr/sbin/alternatives --install /usr/sbin/nginx nginx \
@@ -559,6 +565,7 @@ if [ $1 == 1 ]; then
     --slave %{perldir}/nginx.pm nginx.pm %{perldir}/nginx_passenger.pm \
     --slave %{_mandir}/man3/nginx.3pm.gz nginx.man \
 	    %{_mandir}/man3/nginx_passenger.3pm.gz
+  fixfiles -R nginx-passenger restore
 fi
 
 %postun -n nginx-passenger
