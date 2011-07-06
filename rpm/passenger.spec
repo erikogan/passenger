@@ -107,6 +107,8 @@ Source200: rubygem-passenger.te
 # Source300: http://github.com/gnosek/nginx-upstream-fair/tarball/master?/nginx-upstream-fair.tar.gz
 Patch0: passenger-force-native.patch
 Patch1: passenger-prevent-dot-cleanup.patch
+Patch2: passenger-standalone-nginx-no-unused-but-set-variable.patch
+Patch3: passenger-standalone-progress-crash-fix.patch
 BuildRoot: %{_tmppath}/%{name}-%{passenger_version}-%{passenger_release}-root-%(%{__id_u} -n)
 Requires: rubygems
 Requires: rubygem(rake) >= 0.8.1
@@ -289,6 +291,16 @@ This package includes an nginx server with Passenger compiled in.
 # the *.dot files in the process. Prevent that removal
 # %patch1 -p1
 
+%if %{?fc15:1}%{?!fc15:0}
+# Nginx doesn't compile with -Wall on FC15, add an argument to the
+# Passenger Standalone build to ignore the fatal warning
+%patch2 -p1
+
+# Passenger standalone progress notification crashes consistently when
+# built in mock, yet not outside of it. Very strange
+%patch3 -p1
+%endif
+
 # FC14 doesn't like the new doxygen sources at all, removing them to
 # regenerate all of it, per Hong Li's recommendation
 rm -rf doc/cxxapi
@@ -353,7 +365,7 @@ export LIBEV_LIBS='-lev'
   # smarter about it than 4.1? It feels wrong to do this, but I don't see
   # an easier way out.
   %if %{?fedora:1}%{?!fedora:0}
-    %define nginx_ccopt %{optflags}
+    %define nginx_ccopt %{optflags} %{?fc15:-Wno-unused-but-set-variable}
   %else
     %define nginx_ccopt %(echo "%{optflags}" | sed -e 's/SOURCE=2/& -Wno-unused/')
   %endif

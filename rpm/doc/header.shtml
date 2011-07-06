@@ -96,6 +96,9 @@ dd.prop {
       </p>
 
       <dl class="per-distro-cmds">
+        <dt><strong>Fedora Core 15</strong>:</dt>
+        <dd>rpm -Uvh <a
+        href="fedora/15/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/fedora/15/passenger-release.noarch.rpm</a></dd>
         <dt><strong>Fedora Core 14</strong>:</dt>
         <dd>rpm -Uvh <a
         href="fedora/14/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/fedora/14/passenger-release.noarch.rpm</a></dd>

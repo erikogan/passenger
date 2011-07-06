@@ -30,6 +30,7 @@ well as the GPG signing key to verify them.
 
 %{?fc13:name='Fedora Core' version='13' path='fedora'}
 %{?fc14:name='Fedora Core' version='14' path='fedora'}
+%{?fc15:name='Fedora Core' version='15' path='fedora'}
 
 if [ -z "$name" ] ; then
  echo "Please specify a distro to build for (f'rex: el5 or fc13)" >&2
