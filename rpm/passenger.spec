@@ -13,7 +13,7 @@
   %define passenger_version 3.0.7
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 3%{?dist}
+  %define passenger_release 4%{?dist}
 %endif
 %define passenger_epoch 1
 
@@ -640,7 +640,10 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Sun Apr 17 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-3%{?dist}
+* Thu Jul  7 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-4
+- Add support for FC15
+
+* Sun Apr 17 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-3
 - Remove file-tail from BuildRequire as well
 
 * Thu Apr 14 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-2

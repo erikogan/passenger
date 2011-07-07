@@ -5,7 +5,7 @@ live=`readlink LIVE`
 
 pushd STAGING
 
-for dir in {fedora/1{5,4,3},rhel/5}/{x86_64,i386}
+for dir in {fedora/1{5,4},rhel/5}/{x86_64,i386}
 do
   echo $dir -------------
   createrepo $PWD/$dir
