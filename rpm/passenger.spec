@@ -18,8 +18,9 @@
 %define passenger_epoch 1
 
 %if %{?nginx_version:0}%{?!nginx_version:1}
-  %define nginx_version 1.0.0
+  %define nginx_version 1.0.2
 %endif
+
 %define nginx_release %{passenger_version}_%{passenger_release}
 %define nginx_user	passenger
 %define nginx_group	%{nginx_user}
@@ -652,6 +653,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Thu Jul  7 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-4
+- Bump nginx to 1.0.2
 - Add support for FC15
 - Add support for RHEL6
 - Fix passenger-standalone dependencies and script permissions
