@@ -117,6 +117,7 @@ Patch0: passenger-force-native.patch
 Patch1: passenger-prevent-dot-cleanup.patch
 Patch2: passenger-standalone-nginx-no-unused-but-set-variable.patch
 Patch3: passenger-standalone-progress-crash-fix.patch
+Patch4: passenger-no-asciidoc-html5.patch
 BuildRoot: %{_tmppath}/%{name}-%{passenger_version}-%{passenger_release}-root-%(%{__id_u} -n)
 Requires: rubygems
 Requires: rubygem(rake) >= 0.8.1
@@ -311,6 +312,10 @@ This package includes an nginx server with Passenger compiled in.
 # built in mock, yet not outside of it. Very strange
 %patch3 -p1
 %endif
+
+# They're using a newer version of asciidoc than is currently available,
+# even on FC15. This should be revisited for FC16
+%patch4 -p1
 
 # FC14 doesn't like the new doxygen sources at all, removing them to
 # regenerate all of it, per Hong Li's recommendation
