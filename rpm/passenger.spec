@@ -93,6 +93,9 @@
 # There's no macro set for EL5, do it by elimination
 %define is_el5    %{?!fedora:%{?!el6:%{?!amzn:1}}}%{?fedora:0}%{?el6:0}%{?amzn:0}
 
+# It turns out Amazon Linux doesn't have libev afterall
+%define has_libev %{?fedora:1}%{?el6:1}%{?!fedora:%{?!el6:0}}
+
 # They DID standardize, now just legacy support:
 %define sharedir %{?is_el5:%{_datadir}}%{?!is_el5:%{_datarootdir}}
 
@@ -145,7 +148,7 @@ BuildRequires: doxygen
 BuildRequires: asciidoc
 BuildRequires: graphviz
 # standaline build deps
-%if !%{is_el5}
+%if %{has_libev}
 BuildRequires: libev-devel
 %endif
 BuildRequires: rubygem(daemon_controller) >= 0.2.5
@@ -191,7 +194,7 @@ version, it is installed as %{gemversion} instead of %{passenger_version}.
 Summary: Phusion Passenger native extensions
 Group: System Environment/Daemons
 Requires: %{name} = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
-%if !%{is_el5}
+%if %{has_libev}
 Requires: libev
 %endif
 Requires(post): policycoreutils, initscripts
@@ -234,7 +237,7 @@ Summary: Standalone Phusion Passenger Server
 Group: System Environment/Daemons
 Requires: %{name} = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
 Requires: %{name}-native-libs = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
-%if !%{is_el5}
+%if %{has_libev}
 Requires: libev
 %endif
 Epoch: %{passenger_epoch}
@@ -347,7 +350,7 @@ find test -type f -print0 | xargs -0 perl -pi -e '%{perlfileck} s{#!(/opt/ruby.*
 
 
 %build
-%if !%{is_el5}
+%if %{has_libev}
 export USE_VENDORED_LIBEV=false
 # This isn't honored
 # export CFLAGS='%optflags -I/usr/include/libev'
@@ -441,7 +444,7 @@ export LIBEV_LIBS='-lev'
 %endif # !only_native_libs
 
 %install
-%if !%{is_el5}
+%if %{has_libev}
 export USE_VENDORED_LIBEV=false
 # This isn't honored
 # export CFLAGS='%optflags -I/usr/include/libev'
@@ -539,7 +542,7 @@ rm -f $native_dir/support/ext/libev/config.log
 rm %{buildroot}/%{geminstdir}/DEVELOPERS.TXT
 
 # This is still needed
-%if !%{is_el5}
+%if %{has_libev}
   %define libevmunge %nil
 %else
   %define libevmunge $native_dir/support/ext/libev/config.status $native_dir/support/ext/libev/Makefile
