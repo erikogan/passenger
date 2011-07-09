@@ -223,6 +223,7 @@ Summary: Standalone Phusion Passenger Server
 Group: System Environment/Daemons
 Requires: %{name} = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
 %if %{?fedora:1}%{?!fedora:0}
+Requires: %{name}-native-libs = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
 Requires: libev
 %endif
 Epoch: %{passenger_epoch}
@@ -615,6 +616,7 @@ rm -rf %{buildroot}
 %doc doc/Users\ guide\ Standalone.txt
 %{_bindir}/passenger
 %{_var}/lib/passenger-standalone/natively-packaged/
+%attr(755, root, root) %{_var}/lib/passenger-standalone/natively-packaged/support/helper-scripts/*
 
 %files -n mod_passenger
 %doc doc/Users\ guide\ Apache.html
@@ -642,6 +644,7 @@ rm -rf %{buildroot}
 %changelog
 * Thu Jul  7 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-4
 - Add support for FC15
+- Fix passenger-standalone dependencies and script permissions
 
 * Sun Apr 17 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-3
 - Remove file-tail from BuildRequire as well
