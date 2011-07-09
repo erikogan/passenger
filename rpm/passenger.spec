@@ -88,10 +88,10 @@
 
 %define is_fedora %{?fedora:1}%{?!fedora:0}
 %define is_el6    %{?el6:1}%{?!el6:0}
+# Apparently Amazon is an amalgam of EL5 & EL6. Super.
+%define is_amzn   %{?amzn:1}%{?!amzn:0}
 # There's no macro set for EL5, do it by elimination
-%define is_el5    %{?!fedora:%{?!el6:1}}%{?fedora:0}%{?el6:0}
-# for now, this is sufficient
-%define is_el   %{?fedora:0}%{?!fedora:1}
+%define is_el5    %{?!fedora:%{?!el6:%{?!amzn:1}}}%{?fedora:0}%{?el6:0}%{?amzn:0}
 
 # They DID standardize, now just legacy support:
 %define sharedir %{?is_el5:%{_datadir}}%{?!is_el5:%{_datarootdir}}
