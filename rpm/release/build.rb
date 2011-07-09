@@ -8,7 +8,7 @@ $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib')
 
 require 'phusion_passenger'
 
-CFGLIMIT=%w{fedora-{14,15} epel-5}
+CFGLIMIT=%w{fedora-{14,15} epel-{5,6}}
 
 stage_dir='./stage'
 

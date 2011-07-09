@@ -85,8 +85,15 @@
 
 %{!?only_native_libs: %define only_native_libs 0}
 
-# Really wish they'd standardize this
-%define sharedir %{?fedora:%{_datarootdir}}%{?!fedora:%{_datadir}}
+%define is_fedora %{?fedora:1}%{?!fedora:0}
+%define is_el6    %{?el6:1}%{?!el6:0}
+# There's no macro set for EL5, do it by elimination
+%define is_el5    %{?!fedora:%{?!el6:1}}%{?fedora:0}%{?el6:0}
+# for now, this is sufficient
+%define is_el   %{?fedora:0}%{?!fedora:1}
+
+# They DID standardize, now just legacy support:
+%define sharedir %{?is_el5:%{_datadir}}%{?!is_el5:%{_datarootdir}}
 
 Summary: Easy and robust Ruby web application deployment
 Name: rubygem-%{gemname}
@@ -123,10 +130,12 @@ BuildRequires: rubygem(rake) >= 0.8.1
 BuildRequires: rubygem(rack)
 BuildRequires: rubygem(fastthread) >= 1.0.1
 BuildRequires: pcre-devel
-%if %{?fedora:1}%{?!fedora:0}
+%if !%{is_el5}
 BuildRequires: perl-ExtUtils-Embed
 BuildRequires: libcurl-devel
+%if %{is_fedora}
 BuildRequires: source-highlight
+%endif
 %else
 BuildRequires: curl-devel
 %endif
@@ -134,12 +143,12 @@ BuildRequires: doxygen
 BuildRequires: asciidoc
 BuildRequires: graphviz
 # standaline build deps
-%if %{?fedora:1}%{?!fedora:0}
+%if !%{is_el5}
 BuildRequires: libev-devel
 %endif
 BuildRequires: rubygem(daemon_controller) >= 0.2.5
 # native build deps
-%if %{?fedora:1}%{?!fedora:0}
+%if !%{is_el5}
 BuildRequires: selinux-policy
 %else
 BuildRequires: selinux-policy-devel
@@ -148,7 +157,7 @@ BuildRequires: selinux-policy-devel
 BuildRequires: pcre-devel
 BuildRequires: zlib-devel
 BuildRequires: openssl-devel
-%if %{?fedora:1}%{?!fedora:0}
+%if !%{is_el5}
 BuildRequires: perl-devel
 %else
 BuildRequires: perl
@@ -180,7 +189,7 @@ version, it is installed as %{gemversion} instead of %{passenger_version}.
 Summary: Phusion Passenger native extensions
 Group: System Environment/Daemons
 Requires: %{name} = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
-%if %{?fedora:1}%{?!fedora:0}
+%if !%{is_el5}
 Requires: libev
 %endif
 Requires(post): policycoreutils, initscripts
@@ -222,8 +231,8 @@ package.
 Summary: Standalone Phusion Passenger Server
 Group: System Environment/Daemons
 Requires: %{name} = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
-%if %{?fedora:1}%{?!fedora:0}
 Requires: %{name}-native-libs = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
+%if !%{is_el5}
 Requires: libev
 %endif
 Epoch: %{passenger_epoch}
@@ -332,7 +341,7 @@ find test -type f -print0 | xargs -0 perl -pi -e '%{perlfileck} s{#!(/opt/ruby.*
 
 
 %build
-%if %{?fedora:1}%{?!fedora:0}
+%if !%{is_el5}
 export USE_VENDORED_LIBEV=false
 # This isn't honored
 # export CFLAGS='%optflags -I/usr/include/libev'
@@ -365,7 +374,7 @@ export LIBEV_LIBS='-lev'
   # I'm not sure why this fails on RHEL but not Fedora. I guess GCC 4.4 is
   # smarter about it than 4.1? It feels wrong to do this, but I don't see
   # an easier way out.
-  %if %{?fedora:1}%{?!fedora:0}
+  %if !%{is_el5}
     %define nginx_ccopt %{optflags} %{?fc15:-Wno-unused-but-set-variable}
   %else
     %define nginx_ccopt %(echo "%{optflags}" | sed -e 's/SOURCE=2/& -Wno-unused/')
@@ -426,7 +435,7 @@ export LIBEV_LIBS='-lev'
 %endif # !only_native_libs
 
 %install
-%if %{?fedora:1}%{?!fedora:0}
+%if !%{is_el5}
 export USE_VENDORED_LIBEV=false
 # This isn't honored
 # export CFLAGS='%optflags -I/usr/include/libev'
@@ -524,7 +533,7 @@ rm -f $native_dir/support/ext/libev/config.log
 rm %{buildroot}/%{geminstdir}/DEVELOPERS.TXT
 
 # This is still needed
-%if %{?fedora:1}%{?!fedora:0}
+%if !%{is_el5}
   %define libevmunge %nil
 %else
   %define libevmunge $native_dir/support/ext/libev/config.status $native_dir/support/ext/libev/Makefile
@@ -644,6 +653,7 @@ rm -rf %{buildroot}
 %changelog
 * Thu Jul  7 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-4
 - Add support for FC15
+- Add support for RHEL6
 - Fix passenger-standalone dependencies and script permissions
 
 * Sun Apr 17 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-3

@@ -17,7 +17,7 @@ rpmbuild-md5 --define "_topdir $rpmstage" --define 'dist %nil' -bs passenger-rel
 rm -rf $stage/{SOURCES,BUILD*,RPMS,SPECS}
 srpm=`ls -1t $rpmstage/SRPMS/*rpm | head -1`
 
-for ver in {epel-5,fedora-{14,15}}
+for ver in {epel-{5,6},fedora-{14,15}}
 do
 	echo --------- $ver
 	xdir=$stage/`echo $ver | tr '-' '/'`/x86_64
