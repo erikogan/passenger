@@ -111,6 +111,8 @@ Source1: nginx-%{nginx_version}.tar.gz
 Source100: apache-passenger.conf.in
 Source101: nginx-passenger.conf.in
 Source200: rubygem-passenger.te
+Source201: rubygem-passenger.fc.in
+Source202: rubygem-passenger.if
 # The most recent nginx RPM no longer includes this plugin. Remove it from the
 # SRPM
 # # Ignore everything after the ?, it's meant to trick rpmbuild into
@@ -121,6 +123,7 @@ Patch1: passenger-prevent-dot-cleanup.patch
 Patch2: passenger-standalone-nginx-no-unused-but-set-variable.patch
 Patch3: passenger-standalone-progress-crash-fix.patch
 Patch4: passenger-no-asciidoc-html5.patch
+Patch5: passenger-selinux-aware-helper-agents.patch
 BuildRoot: %{_tmppath}/%{name}-%{passenger_version}-%{passenger_release}-root-%(%{__id_u} -n)
 Requires: rubygems
 Requires: rubygem(rake) >= 0.8.1
@@ -153,6 +156,7 @@ BuildRequires: libev-devel
 %endif
 BuildRequires: rubygem(daemon_controller) >= 0.2.5
 # native build deps
+BuildRequires: libselinux-devel
 %if !%{is_el5}
 BuildRequires: selinux-policy
 %else
@@ -240,6 +244,7 @@ Requires: %{name}-native-libs = %{passenger_epoch}:%{passenger_version}-%{passen
 %if %{has_libev}
 Requires: libev
 %endif
+Requires: libselinux
 Epoch: %{passenger_epoch}
 Obsoletes: rubygem-passenger-standalone
 Provides: rubygem-passenger-standalone
@@ -255,6 +260,7 @@ This package contains the standalone Passenger server
 Summary: Apache Module for Phusion Passenger
 Group: System Environment/Daemons
 Requires: %{name}-native = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
+Requires: libselinux
 #BuildArch: %_target_arch
 Obsoletes: rubygem-passenger-apache
 Epoch: %{passenger_epoch}
@@ -280,6 +286,7 @@ Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires: GeoIP
 Requires: gd
 Requires: nginx-alternatives
+Requires: libselinux
 Epoch: %{passenger_epoch}
 %description -n nginx-passenger
 Phusion Passenger™ — a.k.a. mod_rails or mod_rack — makes deployment
@@ -319,6 +326,9 @@ This package includes an nginx server with Passenger compiled in.
 # They're using a newer version of asciidoc than is currently available,
 # even on FC15. This should be revisited for FC16
 %patch4 -p1
+
+# Make HelperAgent transition back to httpd_t on the ruby exec
+%patch5 -p1
 
 # FC14 doesn't like the new doxygen sources at all, removing them to
 # regenerate all of it, per Hong Li's recommendation
@@ -369,10 +379,8 @@ export LIBEV_LIBS='-lev'
   rm -rf selinux
   mkdir selinux
   cd selinux
-  cp %{SOURCE200} .
-  echo '%{geminstdir}/agents/((apache2|nginx)/)?Passenger.*	system_u:object_r:httpd_exec_t:s0' > rubygem-passenger.fc
-  echo '%{_var}/log/passenger-analytics	system_u:object_r:httpd_log_t:s0' >> rubygem-passenger.fc
-  touch rubygem-passenger.if
+  cp %{SOURCE200} %{SOURCE202} .
+  perl -pe 's{%%GEMDIR%%}{%geminstdir}g;s{%%VAR%%}{%_var}g' %{SOURCE201} > rubygem-passenger.fc
   make -f %{sharedir}/selinux/devel/Makefile
   cd ..
 
@@ -661,6 +669,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Thu Jul  7 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-4
+- Move PassengerHelperAgent to its own SELinux domain
 - Bump nginx to 1.0.2
 - Add support for FC15
 - Add support for RHEL6
