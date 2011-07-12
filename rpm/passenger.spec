@@ -326,7 +326,8 @@ This package includes an nginx server with Passenger compiled in.
 
 # They're using a newer version of asciidoc than is currently available,
 # even on FC15. This should be revisited for FC16
-%patch4 -p1
+# Not needed until after 3.0.7
+# %patch4 -p1
 
 # Make HelperAgent transition back to httpd_t on the ruby exec
 %patch5 -p1
