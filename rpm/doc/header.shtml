@@ -52,15 +52,18 @@ p#tm {
   margin-bottom: 0.5em;
 }
 
-dd.prop {
+.per-distro-cmds dt em {
+  color: #2b447e;
+}
+
+/*dd.prop {
   font-family: baskerville, bodoni svtytwo os, bodoni, georgia, times new roman, serif;
   padding: 0;
   border: 0;
   background-color: transparent;
   white-space: normal;
 }
-
-
+*/
 
 .or {
   padding: 0.5em;
@@ -96,7 +99,7 @@ dd.prop {
       </p>
 
       <dl class="per-distro-cmds">
-        <dt><strong>Fedora Core 15</strong>:</dt>
+        <dt><strong>Fedora Core 15 <em>(NEW!)</em></strong>:</dt>
         <dd>rpm -Uvh <a
         href="fedora/15/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/fedora/15/passenger-release.noarch.rpm</a></dd>
         <dt><strong>Fedora Core 14</strong>:</dt>
@@ -106,12 +109,10 @@ dd.prop {
         href="http://fedoraproject.org/wiki/EPEL">EPEL</a>)</dt>
         <dd>rpm -Uvh <a
         href="rhel/5/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/rhel/5/passenger-release.noarch.rpm</a></dd>
-        <dt><strong>RHEL 6 / CentOS 6 / ScientificLinux 6</strong>: (note, these packages depend on <a
+        <dt><strong>RHEL 6 / CentOS 6 / ScientificLinux 6 <em>(NEW!)</em></strong>: (note, these packages depend on <a
         href="http://fedoraproject.org/wiki/EPEL">EPEL</a>)</dt>
-        <dd class="prop">
-          These packages will be available as soon as there is
-          a stable beta of either CentOS 6 or SL 6 to use as a build platform.
-        </dd>
+        <dd>rpm -Uvh <a
+        href="rhel/6/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/rhel/6/passenger-release.noarch.rpm</a></dd>
       </dl>
 
       <p>
