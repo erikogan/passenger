@@ -31,7 +31,10 @@ apache_domtrans(httpd_passenger_helper_t)
 apache_sigchld(httpd_passenger_helper_t)
 apache_append_log(httpd_passenger_helper_t)
 apache_read_sys_content(httpd_passenger_helper_t)
-apache_read_tmp_files(httpd_passenger_helper_t)
+# This macro doesn't exist in EL5, expanded below
+# apache_read_tmp_files(httpd_passenger_helper_t)
+files_search_tmp(httpd_passenger_helper_t)
+read_files_pattern(httpd_passenger_helper_t, httpd_tmp_t, httpd_tmp_t)
 
 # And back again
 passenger_helper_domtrans(httpd_t)
