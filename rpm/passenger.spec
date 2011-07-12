@@ -370,6 +370,22 @@ export LIBEV_CFLAGS='-I/usr/include/libev'
 export LIBEV_LIBS='-lev'
 %endif
 
+%if %is_el6
+%ifarch x86_64
+# x86_64 EL6 build started crashing when source-highlight was not
+# present. That is probably the CORRECT behavior. But it's inconsistent
+# & inconvenient.
+mkdir new_path
+export PATH=$PATH:$PWD/new_path
+cat <<EOF > new_path/source-highlight
+#!/bin/sh
+echo "source-highlight not installed!" >&2
+exit 0
+EOF
+chmod +x new_path/source-highlight
+%endif
+%endif
+
 %if %{only_native_libs}
    %{rake} native_support
 %else
