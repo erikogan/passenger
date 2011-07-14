@@ -1,0 +1,55 @@
+diff --git a/ext/common/SpawnManager.h b/ext/common/SpawnManager.h
+index bd3ade8..2fcbfe0 100644
+--- a/ext/common/SpawnManager.h
++++ b/ext/common/SpawnManager.h
+@@ -25,6 +25,9 @@
+ #ifndef _PASSENGER_SPAWN_MANAGER_H_
+ #define _PASSENGER_SPAWN_MANAGER_H_
+ 
++// This is probably specific to RHEL/Fedora
++#define SELINUX_EXEC_TYPE	"httpd_t"
++
+ #include <string>
+ #include <vector>
+ #include <boost/shared_ptr.hpp>
+@@ -58,6 +61,9 @@
+ #include "Utils/SystemTime.h"
+ #include "Utils/IOUtils.h"
+ 
++#include <selinux/selinux.h>
++#include <selinux/context.h>
++
+ namespace Passenger {
+ 
+ using namespace std;
+@@ -202,6 +208,16 @@ private:
+ 				close(i);
+ 			}
+ 			
++			// Request a transition to the SELINUX_EXEC_TYPE domain on next exec
++			security_context_t security_context;
++			context_t context;
++			getcon(&security_context);
++			context = context_new(security_context);
++			freecon(security_context);
++			context_type_set(context, SELINUX_EXEC_TYPE);
++			setexeccon(context_str(context));
++			context_free(context);
++			
+ 			execlp(rubyCommand.c_str(),
+ 				rubyCommand.c_str(),
+ 				spawnServerCommand.c_str(),
+diff --git a/build/config.rb b/build/config.rb
+index 0c13aed..e21799e 100644
+--- a/build/config.rb
++++ b/build/config.rb
+@@ -37,7 +37,7 @@ EXTRA_CXXFLAGS = "-Wextra -Wno-unused-parameter -Wno-parentheses -Wpointer-arith
+ 
+ # Extra linker flags that should always be passed to the linker.
+ # Should be included last in the command string, even after PlatformInfo.portability_ldflags.
+-EXTRA_LDFLAGS  = ""
++EXTRA_LDFLAGS  = "-lselinux"
+ 
+ # Whether to use the vendored libev or the system one.
+ USE_VENDORED_LIBEV = boolean_option("USE_VENDORED_LIBEV", true)
+\ No newline at end of file

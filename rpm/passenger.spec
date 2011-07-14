@@ -13,13 +13,14 @@
   %define passenger_version 3.0.7
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 3%{?dist}
+  %define passenger_release 4%{?dist}
 %endif
 %define passenger_epoch 1
 
 %if %{?nginx_version:0}%{?!nginx_version:1}
-  %define nginx_version 1.0.0
+  %define nginx_version 1.0.2
 %endif
+
 %define nginx_release %{passenger_version}_%{passenger_release}
 %define nginx_user	passenger
 %define nginx_group	%{nginx_user}
@@ -85,8 +86,18 @@
 
 %{!?only_native_libs: %define only_native_libs 0}
 
-# Really wish they'd standardize this
-%define sharedir %{?fedora:%{_datarootdir}}%{?!fedora:%{_datadir}}
+%define is_fedora %{?fedora:1}%{?!fedora:0}
+%define is_el6    %{?el6:1}%{?!el6:0}
+# Apparently Amazon is an amalgam of EL5 & EL6. Super.
+%define is_amzn   %{?amzn:1}%{?!amzn:0}
+# There's no macro set for EL5, do it by elimination
+%define is_el5    %{?!fedora:%{?!el6:%{?!amzn:1}}}%{?fedora:0}%{?el6:0}%{?amzn:0}
+
+# It turns out Amazon Linux doesn't have libev afterall
+%define has_libev %{?fedora:1}%{?el6:1}%{?!fedora:%{?!el6:0}}
+
+# They DID standardize, now just legacy support:
+%define sharedir %{?is_el5:%{_datadir}}%{?!is_el5:%{_datarootdir}}
 
 Summary: Easy and robust Ruby web application deployment
 Name: rubygem-%{gemname}
@@ -100,6 +111,8 @@ Source1: nginx-%{nginx_version}.tar.gz
 Source100: apache-passenger.conf.in
 Source101: nginx-passenger.conf.in
 Source200: rubygem-passenger.te
+Source201: rubygem-passenger.fc.in
+Source202: rubygem-passenger.if
 # The most recent nginx RPM no longer includes this plugin. Remove it from the
 # SRPM
 # # Ignore everything after the ?, it's meant to trick rpmbuild into
@@ -107,6 +120,10 @@ Source200: rubygem-passenger.te
 # Source300: http://github.com/gnosek/nginx-upstream-fair/tarball/master?/nginx-upstream-fair.tar.gz
 Patch0: passenger-force-native.patch
 Patch1: passenger-prevent-dot-cleanup.patch
+Patch2: passenger-standalone-nginx-no-unused-but-set-variable.patch
+Patch3: passenger-standalone-progress-crash-fix.patch
+Patch4: passenger-no-asciidoc-html5.patch
+Patch5: passenger-selinux-aware-helper-agents.patch
 BuildRoot: %{_tmppath}/%{name}-%{passenger_version}-%{passenger_release}-root-%(%{__id_u} -n)
 Requires: rubygems
 Requires: rubygem(rake) >= 0.8.1
@@ -114,6 +131,7 @@ Requires: rubygem(fastthread) >= 1.0.1
 Requires: rubygem(daemon_controller) >= 0.2.5
 Requires: rubygem(rack)
 BuildRequires: ruby-devel
+BuildRequires: gcc-c++
 %if !%{only_native_libs}
 BuildRequires: httpd-devel
 BuildRequires: rubygems
@@ -121,10 +139,12 @@ BuildRequires: rubygem(rake) >= 0.8.1
 BuildRequires: rubygem(rack)
 BuildRequires: rubygem(fastthread) >= 1.0.1
 BuildRequires: pcre-devel
-%if %{?fedora:1}%{?!fedora:0}
+%if !%{is_el5}
 BuildRequires: perl-ExtUtils-Embed
 BuildRequires: libcurl-devel
+%if %{is_fedora}
 BuildRequires: source-highlight
+%endif
 %else
 BuildRequires: curl-devel
 %endif
@@ -132,12 +152,13 @@ BuildRequires: doxygen
 BuildRequires: asciidoc
 BuildRequires: graphviz
 # standaline build deps
-%if %{?fedora:1}%{?!fedora:0}
+%if %{has_libev}
 BuildRequires: libev-devel
 %endif
 BuildRequires: rubygem(daemon_controller) >= 0.2.5
 # native build deps
-%if %{?fedora:1}%{?!fedora:0}
+BuildRequires: libselinux-devel
+%if !%{is_el5}
 BuildRequires: selinux-policy
 %else
 BuildRequires: selinux-policy-devel
@@ -146,7 +167,7 @@ BuildRequires: selinux-policy-devel
 BuildRequires: pcre-devel
 BuildRequires: zlib-devel
 BuildRequires: openssl-devel
-%if %{?fedora:1}%{?!fedora:0}
+%if !%{is_el5}
 BuildRequires: perl-devel
 %else
 BuildRequires: perl
@@ -178,7 +199,7 @@ version, it is installed as %{gemversion} instead of %{passenger_version}.
 Summary: Phusion Passenger native extensions
 Group: System Environment/Daemons
 Requires: %{name} = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
-%if %{?fedora:1}%{?!fedora:0}
+%if %{has_libev}
 Requires: libev
 %endif
 Requires(post): policycoreutils, initscripts
@@ -220,9 +241,11 @@ package.
 Summary: Standalone Phusion Passenger Server
 Group: System Environment/Daemons
 Requires: %{name} = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
-%if %{?fedora:1}%{?!fedora:0}
+Requires: %{name}-native-libs = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
+%if %{has_libev}
 Requires: libev
 %endif
+Requires: libselinux
 Epoch: %{passenger_epoch}
 Obsoletes: rubygem-passenger-standalone
 Provides: rubygem-passenger-standalone
@@ -238,6 +261,7 @@ This package contains the standalone Passenger server
 Summary: Apache Module for Phusion Passenger
 Group: System Environment/Daemons
 Requires: %{name}-native = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
+Requires: libselinux
 #BuildArch: %_target_arch
 Obsoletes: rubygem-passenger-apache
 Epoch: %{passenger_epoch}
@@ -263,6 +287,7 @@ Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires: GeoIP
 Requires: gd
 Requires: nginx-alternatives
+Requires: libselinux
 Epoch: %{passenger_epoch}
 %description -n nginx-passenger
 Phusion Passenger™ — a.k.a. mod_rails or mod_rack — makes deployment
@@ -288,6 +313,24 @@ This package includes an nginx server with Passenger compiled in.
 # FC14 doesn't like the Doxygen MD5, and regenerates the files, removing
 # the *.dot files in the process. Prevent that removal
 # %patch1 -p1
+
+%if %{?fc15:1}%{?!fc15:0}
+# Nginx doesn't compile with -Wall on FC15, add an argument to the
+# Passenger Standalone build to ignore the fatal warning
+%patch2 -p1
+
+# Passenger standalone progress notification crashes consistently when
+# built in mock, yet not outside of it. Very strange
+%patch3 -p1
+%endif
+
+# They're using a newer version of asciidoc than is currently available,
+# even on FC15. This should be revisited for FC16
+# Not needed until after 3.0.7
+# %patch4 -p1
+
+# Make HelperAgent transition back to httpd_t on the ruby exec
+%patch5 -p1
 
 # FC14 doesn't like the new doxygen sources at all, removing them to
 # regenerate all of it, per Hong Li's recommendation
@@ -319,12 +362,28 @@ find test -type f -print0 | xargs -0 perl -pi -e '%{perlfileck} s{#!(/opt/ruby.*
 
 
 %build
-%if %{?fedora:1}%{?!fedora:0}
+%if %{has_libev}
 export USE_VENDORED_LIBEV=false
 # This isn't honored
 # export CFLAGS='%optflags -I/usr/include/libev'
 export LIBEV_CFLAGS='-I/usr/include/libev'
 export LIBEV_LIBS='-lev'
+%endif
+
+%if %is_el6
+%ifarch x86_64
+# x86_64 EL6 build started crashing when source-highlight was not
+# present. That is probably the CORRECT behavior. But it's inconsistent
+# & inconvenient.
+mkdir new_path
+export PATH=$PATH:$PWD/new_path
+cat <<EOF > new_path/source-highlight
+#!/bin/sh
+echo "source-highlight not installed!" >&2
+exit 0
+EOF
+chmod +x new_path/source-highlight
+%endif
 %endif
 
 %if %{only_native_libs}
@@ -338,10 +397,8 @@ export LIBEV_LIBS='-lev'
   rm -rf selinux
   mkdir selinux
   cd selinux
-  cp %{SOURCE200} .
-  echo '%{geminstdir}/agents/((apache2|nginx)/)?Passenger.*	system_u:object_r:httpd_exec_t:s0' > rubygem-passenger.fc
-  echo '%{_var}/log/passenger-analytics	system_u:object_r:httpd_log_t:s0' >> rubygem-passenger.fc
-  touch rubygem-passenger.if
+  cp %{SOURCE200} %{SOURCE202} .
+  perl -pe 's{%%GEMDIR%%}{%geminstdir}g;s{%%VAR%%}{%_var}g' %{SOURCE201} > rubygem-passenger.fc
   make -f %{sharedir}/selinux/devel/Makefile
   cd ..
 
@@ -352,8 +409,8 @@ export LIBEV_LIBS='-lev'
   # I'm not sure why this fails on RHEL but not Fedora. I guess GCC 4.4 is
   # smarter about it than 4.1? It feels wrong to do this, but I don't see
   # an easier way out.
-  %if %{?fedora:1}%{?!fedora:0}
-    %define nginx_ccopt %{optflags}
+  %if !%{is_el5}
+    %define nginx_ccopt %{optflags} %{?fc15:-Wno-unused-but-set-variable}
   %else
     %define nginx_ccopt %(echo "%{optflags}" | sed -e 's/SOURCE=2/& -Wno-unused/')
   %endif
@@ -413,7 +470,7 @@ export LIBEV_LIBS='-lev'
 %endif # !only_native_libs
 
 %install
-%if %{?fedora:1}%{?!fedora:0}
+%if %{has_libev}
 export USE_VENDORED_LIBEV=false
 # This isn't honored
 # export CFLAGS='%optflags -I/usr/include/libev'
@@ -511,7 +568,7 @@ rm -f $native_dir/support/ext/libev/config.log
 rm %{buildroot}/%{geminstdir}/DEVELOPERS.TXT
 
 # This is still needed
-%if %{?fedora:1}%{?!fedora:0}
+%if %{has_libev}
   %define libevmunge %nil
 %else
   %define libevmunge $native_dir/support/ext/libev/config.status $native_dir/support/ext/libev/Makefile
@@ -548,6 +605,11 @@ EOF
     find %{buildroot}/%{geminstdir} \\( -type d \\( -name native -o -name agents \\) \\) -prune -o \\( -type f -print \\) | perl -pe 's{^%{buildroot}}{};s{^//}{/};s/([?|*'\\''\"])/\\\\$1/g;s{(^|\\n$)}{\"$&}g' >> %{base_files} \
     %{__arch_install_post}
 
+%post -n mod_passenger
+if [ $1 == 1 ]; then
+  fixfiles -R mod_passenger restore
+fi
+
 %post -n nginx-passenger
 if [ $1 == 1 ]; then
   /usr/sbin/alternatives --install /usr/sbin/nginx nginx \
@@ -559,6 +621,7 @@ if [ $1 == 1 ]; then
     --slave %{perldir}/nginx.pm nginx.pm %{perldir}/nginx_passenger.pm \
     --slave %{_mandir}/man3/nginx.3pm.gz nginx.man \
 	    %{_mandir}/man3/nginx_passenger.3pm.gz
+  fixfiles -R nginx-passenger restore
 fi
 
 %postun -n nginx-passenger
@@ -603,6 +666,7 @@ rm -rf %{buildroot}
 %doc doc/Users\ guide\ Standalone.txt
 %{_bindir}/passenger
 %{_var}/lib/passenger-standalone/natively-packaged/
+%attr(755, root, root) %{_var}/lib/passenger-standalone/natively-packaged/support/helper-scripts/*
 
 %files -n mod_passenger
 %doc doc/Users\ guide\ Apache.html
@@ -628,7 +692,14 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Sun Apr 17 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-3%{?dist}
+* Thu Jul  7 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-4
+- Move PassengerHelperAgent to its own SELinux domain
+- Bump nginx to 1.0.2
+- Add support for FC15
+- Add support for RHEL6
+- Fix passenger-standalone dependencies and script permissions
+
+* Sun Apr 17 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-3
 - Remove file-tail from BuildRequire as well
 
 * Thu Apr 14 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-2

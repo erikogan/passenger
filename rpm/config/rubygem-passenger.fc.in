@@ -1,0 +1,6 @@
+%GEMDIR%/agents/(apache2|nginx)/PassengerHelperAgent	system_u:object_r:httpd_passenger_helper_exec_t:s0
+%GEMDIR%/agents/Passenger.*	system_u:object_r:httpd_exec_t:s0
+%VAR%/log/passenger-analytics	system_u:object_r:httpd_log_t:s0
+# EPEL's nginx package doesn't have any SELlinux support??
+/usr/sbin/nginx.passenger	system_u:object_r:httpd_exec_t:s0
+%VAR%/log/nginx(/.*)?		system_u:object_r:httpd_log_t:s0

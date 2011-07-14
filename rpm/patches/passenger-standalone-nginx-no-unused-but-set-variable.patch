@@ -1,0 +1,12 @@
+diff --git a/lib/phusion_passenger/standalone/runtime_installer.rb b/lib/phusion_passenger/standalone/runtime_installer.rb
+index 9ac15c2..0a8fc2b 100644
+--- a/lib/phusion_passenger/standalone/runtime_installer.rb
++++ b/lib/phusion_passenger/standalone/runtime_installer.rb
+@@ -440,6 +440,7 @@ private
+ 				"--without-pcre " <<
+ 				"--without-http_rewrite_module " <<
+ 				"--without-http_fastcgi_module " <<
++				"--with-cc-opt='-Wno-unused-but-set-variable' " <<
+ 				"'--add-module=#{@support_dir}/ext/nginx'"
+ 			run_command_with_throbber(command, "Preparing Nginx...") do |status_text|
+ 				yield(0, 1, status_text)
