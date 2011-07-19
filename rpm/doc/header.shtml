@@ -100,19 +100,19 @@ p#tm {
 
       <dl class="per-distro-cmds">
         <dt><strong>Fedora Core 15 <em>(NEW!)</em></strong>:</dt>
-        <dd>rpm -Uvh <a
+        <dd>yum install <a
         href="fedora/15/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/fedora/15/passenger-release.noarch.rpm</a></dd>
         <dt><strong>Fedora Core 14</strong>:</dt>
-        <dd>rpm -Uvh <a
+        <dd>yum install <a
         href="fedora/14/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/fedora/14/passenger-release.noarch.rpm</a></dd>
+        <dt><strong>RHEL 6 / CentOS 6 / ScientificLinux 6 <em>(NEW!)</em></strong>: (note, these packages depend on <a
+        href="http://fedoraproject.org/wiki/EPEL">EPEL</a>)</dt>
+        <dd>yum install <a
+        href="rhel/6/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/rhel/6/passenger-release.noarch.rpm</a></dd>
         <dt><strong>RHEL 5 / CentOS 5 / ScientificLinux 5</strong>: (note, these packages depend on <a
         href="http://fedoraproject.org/wiki/EPEL">EPEL</a>)</dt>
         <dd>rpm -Uvh <a
         href="rhel/5/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/rhel/5/passenger-release.noarch.rpm</a></dd>
-        <dt><strong>RHEL 6 / CentOS 6 / ScientificLinux 6 <em>(NEW!)</em></strong>: (note, these packages depend on <a
-        href="http://fedoraproject.org/wiki/EPEL">EPEL</a>)</dt>
-        <dd>rpm -Uvh <a
-        href="rhel/6/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/rhel/6/passenger-release.noarch.rpm</a></dd>
       </dl>
 
       <p>
