@@ -319,11 +319,12 @@ This package includes an nginx server with Passenger compiled in.
 # Nginx doesn't compile with -Wall on FC15, add an argument to the
 # Passenger Standalone build to ignore the fatal warning
 %patch2 -p1
+%endif
 
 # Passenger standalone progress notification crashes consistently when
-# built in mock, yet not outside of it. Very strange
+# built in mock, yet not outside of it. Very strange. Stranger, I got my
+# first crash outside of mock.
 %patch3 -p1
-%endif
 
 # They're using a newer version of asciidoc than is currently available,
 # even on FC15. This should be revisited for FC16
