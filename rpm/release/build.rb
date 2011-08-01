@@ -347,6 +347,10 @@ if options[:release]
 		next unless File.directory?(distro_version)
 		arch = Dir["#{distro_version}/{#{@can_build.sort.join ','}}"].last
 		pkg = Dir["#{arch}/passenger-release*rpm"].last
+		unless pkg
+			warn "No relese package for #{arch}"
+			next
+		end
 		pkg = pkg.split(/#{File::SEPARATOR}/).last(2)
 		FileUtils.ln_sf(File.join(pkg), "#{distro_version}/passenger-release.noarch.rpm", :verbose => @verbosity > 0)
 	end
