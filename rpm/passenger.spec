@@ -260,8 +260,9 @@ This package contains the standalone Passenger server
 %package -n mod_passenger
 Summary: Apache Module for Phusion Passenger
 Group: System Environment/Daemons
-Requires: %{name}-native = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
+Requires: %{name}-native-libs = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
 Requires: libselinux
+Requires: httpd
 #BuildArch: %_target_arch
 Obsoletes: rubygem-passenger-apache
 Epoch: %{passenger_epoch}
