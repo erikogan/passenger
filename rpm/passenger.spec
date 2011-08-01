@@ -13,7 +13,7 @@
   %define passenger_version 3.0.7
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 4%{?dist}
+  %define passenger_release 5%{?dist}
 %endif
 %define passenger_epoch 1
 
@@ -693,6 +693,11 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sun Jul 31 2011  Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-5
+- Fix segfault when SELinux is disabled
+- Fix mod_passenger's native-libs dependency
+- Add httpd to the list of mod_passenger dependencies
+
 * Thu Jul  7 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-4
 - Move PassengerHelperAgent to its own SELinux domain
 - Bump nginx to 1.0.2
