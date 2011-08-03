@@ -40,7 +40,7 @@ index bd3ade8..8b975a2 100644
  				close(i);
  			}
  			
-+			if (selinux_is_enabled()) {
++			if (is_selinux_enabled()) {
 +				// Request a transition to the SELINUX_EXEC_TYPE domain on next exec
 +				security_context_t security_context;
 +				context_t context;
