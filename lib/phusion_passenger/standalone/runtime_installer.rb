@@ -307,7 +307,7 @@ private
 			if !File.directory?(dir)
 				FileUtils.mkdir_p(dir)
 			end
-			FileUtils.install(filename, "#{target}/#{filename}")
+			FileUtils.install(filename, "#{target}/#{filename}", :mode => File.stat(filename).mode)
 			yield(i + 1, files.size)
 		end
 	end
@@ -437,6 +437,7 @@ private
 			# work around the problem by configure Nginx with prefix
 			# /tmp.
 			command = "sh ./configure --prefix=/tmp " <<
+				"--with-cc-opt='-Wno-error' " <<
 				"--without-pcre " <<
 				"--without-http_rewrite_module " <<
 				"--without-http_fastcgi_module " <<
