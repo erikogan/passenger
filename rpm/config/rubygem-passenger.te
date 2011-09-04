@@ -1,4 +1,4 @@
-policy_module(rubygem_passenger, 1.3)
+policy_module(rubygem_passenger, 1.4)
 
 require {
   role system_r;
@@ -40,9 +40,9 @@ read_files_pattern(httpd_passenger_helper_t, httpd_tmp_t, httpd_tmp_t)
 passenger_helper_domtrans(httpd_t)
 passenger_helper_use_sockets(httpd_t)
 
-bool passenger_use_shlibs false;
+bool httpd_passenger_use_shared_libs false;
 
-if (passenger_use_shlibs) {
+if (httpd_passenger_use_shared_libs) {
   libs_use_ld_so(httpd_passenger_helper_t)
   libs_use_shared_libs(httpd_passenger_helper_t)
   libs_exec_ld_so(httpd_passenger_helper_t)
