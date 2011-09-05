@@ -10,15 +10,15 @@
 
 %define gemname passenger
 %if %{?passenger_version:0}%{?!passenger_version:1}
-  %define passenger_version 3.0.7
+  %define passenger_version 3.0.8
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 5%{?dist}
+  %define passenger_release 2%{?dist}
 %endif
 %define passenger_epoch 1
 
 %if %{?nginx_version:0}%{?!nginx_version:1}
-  %define nginx_version 1.0.2
+  %define nginx_version 1.0.5
 %endif
 
 %define nginx_release %{passenger_version}_%{passenger_release}
@@ -60,8 +60,8 @@
   %define gemdir %(%{gem} env gemdir 2>/dev/null)
 %else
   %define ruby_sitelib /usr/lib/ruby/site_ruby/1.8
-  %define ruby_version_patch 1.8.7.330
-  %define broken_gem_version 0
+  %define ruby_version_patch 1.8.7.352
+  %define broken_gem_version 1
   %define gemdir /usr/lib/ruby/gems/1.8
 %endif
 
