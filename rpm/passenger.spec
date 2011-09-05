@@ -10,15 +10,17 @@
 
 %define gemname passenger
 %if %{?passenger_version:0}%{?!passenger_version:1}
-  %define passenger_version 3.0.7
+  # From Passenger Source
+  %define passenger_version 3.0.8
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 5%{?dist}
+  %define passenger_release 1%{?dist}
 %endif
 %define passenger_epoch 1
 
 %if %{?nginx_version:0}%{?!nginx_version:1}
-  %define nginx_version 1.0.2
+  # From Passenger Source
+  %define nginx_version 1.0.5
 %endif
 
 %define nginx_release %{passenger_version}_%{passenger_release}
@@ -60,8 +62,8 @@
   %define gemdir %(%{gem} env gemdir 2>/dev/null)
 %else
   %define ruby_sitelib /usr/lib/ruby/site_ruby/1.8
-  %define ruby_version_patch 1.8.7.330
-  %define broken_gem_version 0
+  %define ruby_version_patch 1.8.7.352
+  %define broken_gem_version 1
   %define gemdir /usr/lib/ruby/gems/1.8
 %endif
 
@@ -328,8 +330,7 @@ This package includes an nginx server with Passenger compiled in.
 
 # They're using a newer version of asciidoc than is currently available,
 # even on FC15. This should be revisited for FC16
-# Not needed until after 3.0.7
-# %patch4 -p1
+%patch4 -p1
 
 # Make HelperAgent transition back to httpd_t on the ruby exec
 %patch5 -p1
@@ -694,7 +695,11 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Sun Jul 31 2011  Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-5
+* Wed Aug  3 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.8-1
+- Bump version to 3.0.8
+- Bump nginx to 1.0.5
+
+* Sun Jul 31 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.7-5
 - Fix segfault when SELinux is disabled
 - Fix mod_passenger's native-libs dependency
 - Add httpd to the list of mod_passenger dependencies
