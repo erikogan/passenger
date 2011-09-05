@@ -2,6 +2,7 @@ LoadModule passenger_module modules/mod_passenger.so
 <IfModule mod_passenger.c>
    PassengerRoot %ROOT
    PassengerRuby %RUBY
+   PassengerTempDir /var/run/passenger
 </IfModule>
 
 # Deploying a Ruby on Rails application: an example

@@ -1,8 +1,8 @@
-policy_module(rubygem_passenger, 1.4)
+policy_module(rubygem_passenger, 1.5)
 
 require {
   role system_r;
-  type httpd_t, httpd_tmp_t;
+  type httpd_t, httpd_tmp_t, httpd_var_run_t;
 };
 
 type httpd_passenger_helper_t;
@@ -58,10 +58,18 @@ kernel_dontaudit_list_all_sysctls(httpd_passenger_helper_t)
 ### Make sure we need these
 allow httpd_passenger_helper_t httpd_t:fifo_file write;
 
-# There is no interface macro for writing httpd_tmp_t files & sockets
+# # There is no interface macro for writing httpd_tmp_t files & sockets
+# These are still required for nginx-passenger. We may want to move them into their own module
 allow httpd_passenger_helper_t httpd_tmp_t:dir { write remove_name add_name };
 allow httpd_passenger_helper_t httpd_tmp_t:file { write create setattr };
 allow httpd_passenger_helper_t httpd_tmp_t:sock_file { write create unlink setattr };
+
+# Nor var_run files & sockets
+# These are probably only required for mod_passenger now
+allow httpd_passenger_helper_t httpd_t:file getattr;
+allow httpd_passenger_helper_t httpd_var_run_t:dir { write remove_name search getattr add_name };
+allow httpd_passenger_helper_t httpd_var_run_t:file { write create open setattr };
+allow httpd_passenger_helper_t httpd_var_run_t:sock_file { write create unlink setattr };
 
 allow httpd_passenger_helper_t self:capability sys_ptrace;
 allow httpd_passenger_helper_t self:fifo_file { write read ioctl getattr };

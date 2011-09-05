@@ -124,6 +124,7 @@ Patch2: passenger-standalone-nginx-no-unused-but-set-variable.patch
 Patch3: passenger-standalone-progress-crash-fix.patch
 Patch4: passenger-no-asciidoc-html5.patch
 Patch5: passenger-selinux-aware-helper-agents.patch
+Patch6: passenger-el5-selinux-lacks-open-on-file.patch
 BuildRoot: %{_tmppath}/%{name}-%{passenger_version}-%{passenger_release}-root-%(%{__id_u} -n)
 Requires: rubygems
 Requires: rubygem(rake) >= 0.8.1
@@ -400,6 +401,9 @@ chmod +x new_path/source-highlight
   cd selinux
   cp %{SOURCE200} %{SOURCE202} .
   perl -pe 's{%%GEMDIR%%}{%geminstdir}g;s{%%VAR%%}{%_var}g' %{SOURCE201} > rubygem-passenger.fc
+  %if %is_el5
+    %patch6
+  %endif
   make -f %{sharedir}/selinux/devel/Makefile
   cd ..
 
@@ -500,6 +504,13 @@ mkdir -p %{buildroot}/%{nginx_confdir}
 mkdir -p %{buildroot}/%{nginx_logdir}
 mkdir -p %{buildroot}/%{httpd_confdir}
 mkdir -p %{buildroot}/%{_var}/log/passenger-analytics
+
+# For some reason FC15's rpm isn't interpreting the %ghost directive. 
+# This will probably lead to trouble, but it won't build without it.
+# (EL5 has it, too)
+%if %{?fc15:1}%{?!fc15:%{is_el5}}
+mkdir -p %{buildroot}/%{_var}/run/passenger
+%endif
 
 # I should probably figure out how to get these into the gem
 cp -ra agents %{buildroot}/%{geminstdir}
@@ -623,32 +634,39 @@ if [ $1 == 1 ]; then
     --slave %{_mandir}/man3/nginx.3pm.gz nginx.man \
 	    %{_mandir}/man3/nginx_passenger.3pm.gz
   fixfiles -R nginx-passenger restore
+  # It appears that the EPEL nginx package has no SELinux configuration, use our policy for now
+  fixfiles -R nginx restore 
 fi
 
 %postun -n nginx-passenger
-if [ $1 == 0 ]; then
+if [ $1 == 0 ]; then # final removal
   /usr/sbin/alternatives --remove nginx /usr/sbin/nginx.passenger
 fi
 
 %post native
-if [ "$1" -le "1" ] ; then # First install
+# Always install the module, otherwise upgrades will have the old version
+# if [ "$1" -le "1" ] ; then # First install
+# semodule -i %{sharedir}/selinux/packages/%{name}/%{name}.pp 2>/dev/null || :
+# fi
 semodule -i %{sharedir}/selinux/packages/%{name}/%{name}.pp 2>/dev/null || :
 fixfiles -R %{name} restore
 fixfiles -R %{name}-native restore
-fi
 
 %preun native
 if [ "$1" -lt "1" ] ; then # Final removal
-semodule -r rubygem_%{gemname} 2>/dev/null || :
-fixfiles -R %{name} restore
-fixfiles -R %{name}-native restore
+  semodule -r rubygem_%{gemname} 2>/dev/null || :
+else
+  fixfiles -R %{name} restore
+  fixfiles -R %{name}-native restore
 fi
 
 %postun native
+# This doesn't seem to be running
 if [ "$1" -ge "1" ] ; then # Upgrade
 semodule -i %{sharedir}/selinux/packages/%{name}/%{name}.pp 2>/dev/null || :
 fi
 %endif # !only_native_libs
+
 
 %clean
 rm -rf %{buildroot}
@@ -661,6 +679,7 @@ rm -rf %{buildroot}
 %{geminstdir}/agents/PassengerWatchdog
 %{sharedir}/selinux/packages/%{name}/%{name}.pp
 %{_var}/log/passenger-analytics
+%ghost %dir %{_var}/run/passenger
 
 %files -n passenger-standalone
 %doc doc/Users\ guide\ Standalone.html
