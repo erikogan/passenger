@@ -10,15 +10,15 @@
 
 %define gemname passenger
 %if %{?passenger_version:0}%{?!passenger_version:1}
-  %define passenger_version 3.0.8
+  %define passenger_version 3.0.9
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 2%{?dist}
+  %define passenger_release 1%{?dist}
 %endif
 %define passenger_epoch 1
 
 %if %{?nginx_version:0}%{?!nginx_version:1}
-  %define nginx_version 1.0.5
+  %define nginx_version 1.0.6
 %endif
 
 %define nginx_release %{passenger_version}_%{passenger_release}
@@ -87,6 +87,7 @@
 %{!?only_native_libs: %define only_native_libs 0}
 
 %define is_fedora %{?fedora:1}%{?!fedora:0}
+
 %define is_el6    %{?el6:1}%{?!el6:0}
 # Apparently Amazon is an amalgam of EL5 & EL6. Super.
 %define is_amzn   %{?amzn:1}%{?!amzn:0}
@@ -505,12 +506,8 @@ mkdir -p %{buildroot}/%{nginx_logdir}
 mkdir -p %{buildroot}/%{httpd_confdir}
 mkdir -p %{buildroot}/%{_var}/log/passenger-analytics
 
-# For some reason FC15's rpm isn't interpreting the %ghost directive. 
-# This will probably lead to trouble, but it won't build without it.
-# (EL5 has it, too)
-%if %{?fc15:1}%{?!fc15:%{is_el5}}
+# The %ghost must be created?
 mkdir -p %{buildroot}/%{_var}/run/passenger
-%endif
 
 # I should probably figure out how to get these into the gem
 cp -ra agents %{buildroot}/%{geminstdir}
@@ -712,6 +709,15 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sun Sep  4 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.9-1
+- Added a new SELinux boolean (httpd_passenger_use_shared_libs) to allow
+  applications to load gems with native code. It is off by default.
+  Thanks to Darrell for this patch!
+- Moved Apache's PassengerTempDir to /var/run/passenger. A better solution than the policy module changes:
+  https://bugzilla.redhat.com/show_bug.cgi?id=730837
+- Bump Passenger to 3.0.9
+- Bump nginx to 1.0.6
+
 * Fri Aug 12 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.8-2
 - Fix the libev dependency for EL6
 
