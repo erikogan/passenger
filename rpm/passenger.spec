@@ -10,16 +10,14 @@
 
 %define gemname passenger
 %if %{?passenger_version:0}%{?!passenger_version:1}
-  # From Passenger Source
   %define passenger_version 3.0.8
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 1%{?dist}
+  %define passenger_release 2%{?dist}
 %endif
 %define passenger_epoch 1
 
 %if %{?nginx_version:0}%{?!nginx_version:1}
-  # From Passenger Source
   %define nginx_version 1.0.5
 %endif
 
@@ -695,6 +693,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Aug 12 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.8-2
+- Fix the libev dependency for EL6
+
 * Wed Aug  3 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.8-1
 - Bump version to 3.0.8
 - Bump nginx to 1.0.5
