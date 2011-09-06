@@ -363,6 +363,16 @@ perl -pi -e "s{(PREFERRED_NGINX_VERSION\s*=\s*(['\"]))[\d\.]+\2}{\${1}%{nginx_ve
 # RPM finds these in shebangs and assumes they're requirements. Clean them up here rather than in the install-dir.
 find test -type f -print0 | xargs -0 perl -pi -e '%{perlfileck} s{#!(/opt/ruby.*|/usr/bin/ruby1.8)}{%{ruby}}g'
 
+### SELINUX
+rm -rf selinux
+mkdir selinux
+cd selinux
+cp %{SOURCE200} %{SOURCE202} .
+perl -pe 's{%%GEMDIR%%}{%geminstdir}g;s{%%VAR%%}{%_var}g' %{SOURCE201} > rubygem-passenger.fc
+%if %is_el5
+%patch6
+%endif
+cd ..
 
 %build
 %if %{has_libev}
@@ -397,14 +407,7 @@ chmod +x new_path/source-highlight
   %{rake} nginx
 
   ### SELINUX
-  rm -rf selinux
-  mkdir selinux
   cd selinux
-  cp %{SOURCE200} %{SOURCE202} .
-  perl -pe 's{%%GEMDIR%%}{%geminstdir}g;s{%%VAR%%}{%_var}g' %{SOURCE201} > rubygem-passenger.fc
-  %if %is_el5
-    %patch6
-  %endif
   make -f %{sharedir}/selinux/devel/Makefile
   cd ..
 
