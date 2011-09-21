@@ -3,13 +3,20 @@
 staging=`readlink STAGING`
 live=`readlink LIVE`
 
+dirname=`dirname $0`
+# This will only work on linux, but for now that's ok, it is more important it work with a relative path
+symlinks=`readlink -f $dirname`/sl_symlinks.rb
+
 pushd STAGING
+
+$symlinks
 
 for dir in {fedora/1{5,4},rhel/{5,6}}/{x86_64,i386}
 do
   echo $dir -------------
   createrepo $PWD/$dir
 done
+
 
 popd
 
