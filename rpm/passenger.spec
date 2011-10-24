@@ -182,6 +182,7 @@ BuildRequires: gd-devel
 # Can't have a noarch package with an arch'd subpackage
 #BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{passenger_version}
+Provides: %{name} = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
 Epoch: %{passenger_epoch}
 
 %description
@@ -208,6 +209,7 @@ Requires(post): policycoreutils, initscripts
 Requires(preun): policycoreutils, initscripts
 Requires(postun): policycoreutils
 Epoch: %{passenger_epoch}
+Provides: rubygem-passenger-native = %{passenger_epoch}:%{passenger_version}-%{passenger_release}
 %description native
 Phusion Passenger™ — a.k.a. mod_rails or mod_rack — makes deployment
 of Ruby web applications, such as those built on the revolutionary
