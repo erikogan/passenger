@@ -8,7 +8,7 @@ $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib')
 
 require 'phusion_passenger'
 
-CFGLIMIT=%w{fedora-{13,14} epel-5}
+CFGLIMIT=%w{fedora-{14,15} epel-{5,6}}
 
 stage_dir='./stage'
 
@@ -165,7 +165,7 @@ end
 configs = limit_configs(configs, limit)
 
 if configs.empty?
-	abort "Can't find a set of configs for '#{ARGV[0]}' (hint try 'fedora' or 'fedora-14' or even 'fedora-14-x86_64')"
+	abort "Can't find a set of configs for '#{ARGV[0]}' (hint try 'fedora' or 'fedora-15' or even 'fedora-15-x86_64')"
 end
 
 puts "BUILD:\n	" + configs.join("\n	") if @verbosity >= 2
@@ -347,6 +347,10 @@ if options[:release]
 		next unless File.directory?(distro_version)
 		arch = Dir["#{distro_version}/{#{@can_build.sort.join ','}}"].last
 		pkg = Dir["#{arch}/passenger-release*rpm"].last
+		unless pkg
+			warn "No relese package for #{arch}"
+			next
+		end
 		pkg = pkg.split(/#{File::SEPARATOR}/).last(2)
 		FileUtils.ln_sf(File.join(pkg), "#{distro_version}/passenger-release.noarch.rpm", :verbose => @verbosity > 0)
 	end

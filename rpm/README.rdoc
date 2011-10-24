@@ -1,7 +1,7 @@
 = Rubygem-passenger
 
 This project is an attempt to build RPMs for {Phusion
-Passenger}[http://modrails.org] for Fedora Core 13+, RHEL 5.5+, and CentOS
+Passenger}[http://modrails.org] for Fedora Core 14+, RHEL 5.5+, and CentOS
 5.5+ (both via EPEL)
 
 == Installation
@@ -9,13 +9,10 @@ Passenger}[http://modrails.org] for Fedora Core 13+, RHEL 5.5+, and CentOS
 The easiest way to install Passenger and keep it up to date is to install the
 passenger-release package from the {main repository}[http://passenger.stealthymonkeys.com]:
 
-[Fedora Core 14] <code>rpm -Uvh http://{http://passenger.stealthymonkeys.com/fedora/14/passenger-release.noarch.rpm}[link:http://passenger.stealthymonkeys.com/fedora/14/passenger-release.noarch.rpm]</code>
-[Fedora Core 13] <code>rpm -Uvh http://{http://passenger.stealthymonkeys.com/fedora/13/passenger-release.noarch.rpm}[link:http://passenger.stealthymonkeys.com/fedora/13/passenger-release.noarch.rpm]</code>
+[Fedora Core 15] <code>yum install http://{http://passenger.stealthymonkeys.com/fedora/15/passenger-release.noarch.rpm}[link:http://passenger.stealthymonkeys.com/fedora/15/passenger-release.noarch.rpm]</code>
+[Fedora Core 14] <code>yum install  http://{http://passenger.stealthymonkeys.com/fedora/14/passenger-release.noarch.rpm}[link:http://passenger.stealthymonkeys.com/fedora/14/passenger-release.noarch.rpm]</code>
+[RHEL / CentOS / ScientificLinux 6.x + EPEL] <code>yum install http://{http://passenger.stealthymonkeys.com/rhel/6/passenger-release.noarch.rpm}[link:http://passenger.stealthymonkeys.com/rhel/6/passenger-release.noarch.rpm]</code>
 [RHEL / CentOS / ScientificLinux 5.x + EPEL] <code>rpm -Uvh http://{http://passenger.stealthymonkeys.com/rhel/5/passenger-release.noarch.rpm}[link:http://passenger.stealthymonkeys.com/rhel/5/passenger-release.noarch.rpm]</code>
-[RHEL / CentOS / ScientificLinux 6.x + EPEL] These packages will be available
-                                             as soon as there is a stable beta
-                                             of either CentOS 6 or SL 6 to use
-                                             as a build platform.
 
 *NOTE*: The RHEL-based distributions are built upon packages in {EPEL}[http://fedoraproject.org/wiki/EPEL], and require it to be installed.
 
@@ -63,8 +60,7 @@ to install Passenger packages:
 [rubygem-passenger-native-libs] The passenger_native_support.so shared library
                                 compiled against a given ruby engine. This
                                 package is separated to simplify building one
-                                for a different ruby engine. Currently only
-                                required by nginx-passenger.
+                                for a different ruby engine.
 
 [nginx-alternatives] A meta-package to put nginx under the alternatives system
                      so that multiple versions of the binary can co-exist.
@@ -75,10 +71,6 @@ to install Passenger packages:
 
 [rubygem-daemon_controller] A gem for robust daemon managment. Required by
                             rubygem-passenger.
-
-[rubygem-file-tail] Library to tail files in Ruby. Required by rubygem-passenger.
-
-[rubygem-spruz] “Useful Stuff.” Required by rubygem-file-tail.
 
 === Other Packages
 

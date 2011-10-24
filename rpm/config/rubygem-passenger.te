@@ -1,20 +1,81 @@
-policy_module(rubygem_passenger, 1.1)
+policy_module(rubygem_passenger, 1.5)
 
 require {
-  type httpd_t, httpd_tmp_t;
+  role system_r;
+  type httpd_t, httpd_tmp_t, httpd_var_run_t;
 };
 
+type httpd_passenger_helper_t;
+type httpd_passenger_helper_exec_t;
 
-# This should use interface macros
+## httpd_passenger_helper_t
+role system_r types httpd_passenger_helper_t;
+
+domain_type(httpd_passenger_helper_t)
+domain_entry_file(httpd_passenger_helper_t,httpd_passenger_helper_exec_t)
+domain_auto_trans(httpd_t,httpd_passenger_helper_exec_t,httpd_passenger_helper_t)
+
+# For ps 
+kernel_list_proc(httpd_passenger_helper_t)
+kernel_search_proc(httpd_passenger_helper_t)
+# - these don't work because the process files & dirs all have their own domains as types
+# kernel_getattr_proc(httpd_passenger_helper_t)
+# kernel_getattr_proc_files(httpd_passenger_helper_t)
+
+corecmd_exec_bin(httpd_passenger_helper_t)
+auth_use_nsswitch(httpd_passenger_helper_t)
+miscfiles_read_localization(httpd_passenger_helper_t)
+dev_read_urand(httpd_passenger_helper_t)
+
+apache_domtrans(httpd_passenger_helper_t)
+apache_sigchld(httpd_passenger_helper_t)
+apache_append_log(httpd_passenger_helper_t)
+apache_read_sys_content(httpd_passenger_helper_t)
+# This macro doesn't exist in EL5, expanded below
+# apache_read_tmp_files(httpd_passenger_helper_t)
+files_search_tmp(httpd_passenger_helper_t)
+read_files_pattern(httpd_passenger_helper_t, httpd_tmp_t, httpd_tmp_t)
+
+# And back again
+passenger_helper_domtrans(httpd_t)
+passenger_helper_use_sockets(httpd_t)
+
+bool httpd_passenger_use_shared_libs false;
+
+if (httpd_passenger_use_shared_libs) {
+  libs_use_ld_so(httpd_passenger_helper_t)
+  libs_use_shared_libs(httpd_passenger_helper_t)
+  libs_exec_ld_so(httpd_passenger_helper_t)
+  libs_exec_lib_files(httpd_passenger_helper_t)
+}
+
+# There's no macro for this, and we definitely need it (connectto for nginx)
+allow httpd_passenger_helper_t httpd_t:unix_stream_socket { read write connectto };
+
+# These are unnecessary
+kernel_dontaudit_list_all_sysctls(httpd_passenger_helper_t)
+
+### Make sure we need these
+allow httpd_passenger_helper_t httpd_t:fifo_file write;
+
+# # There is no interface macro for writing httpd_tmp_t files & sockets
+# These are still required for nginx-passenger. We may want to move them into their own module
+allow httpd_passenger_helper_t httpd_tmp_t:dir { write remove_name add_name };
+allow httpd_passenger_helper_t httpd_tmp_t:file { write create setattr };
+allow httpd_passenger_helper_t httpd_tmp_t:sock_file { write create unlink setattr };
+
+# Nor var_run files & sockets
+# These are probably only required for mod_passenger now
+allow httpd_passenger_helper_t httpd_t:file getattr;
+allow httpd_passenger_helper_t httpd_var_run_t:dir { write remove_name search getattr add_name };
+allow httpd_passenger_helper_t httpd_var_run_t:file { write create open setattr };
+allow httpd_passenger_helper_t httpd_var_run_t:sock_file { write create unlink setattr };
+
+allow httpd_passenger_helper_t self:capability sys_ptrace;
+allow httpd_passenger_helper_t self:fifo_file { write read ioctl getattr };
+allow httpd_passenger_helper_t self:process { setsched signal setexec };
+allow httpd_passenger_helper_t self:unix_stream_socket connectto;
+
+# Left over from before we had our own domain. Probably still needed, but check
 allow httpd_t httpd_tmp_t:sock_file { create write unlink getattr setattr };
 allow httpd_t self:capability { fowner sys_resource fsetid };
-
-# These allow the watchdog to run ps, but also any other httpd_t
-# process, too (CGI scripts run in httpd_sys_script_t, but PHP,
-# mod_perl, etc run in httpd_t)
-bool httpd_use_ps true;
-
-if (httpd_use_ps) {
-domain_ptrace_all_domains(httpd_t)
-domain_dontaudit_search_all_domains_state(httpd_t)
-}

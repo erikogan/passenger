@@ -42,7 +42,7 @@ namespace :package do
 			def fetch(dir)
 				tarball = "nginx-#{PREFERRED_NGINX_VERSION}.tar.gz"
 				return true if File.exists?("#{dir}/#{tarball}")
-				download("http://sysoev.ru/nginx/#{tarball}", "#{dir}/#{tarball}")
+				download("http://nginx.org/download/#{tarball}", "#{dir}/#{tarball}")
 			end
 		end
 
@@ -61,17 +61,19 @@ namespace :package do
 	end
 
 	desc "Package the current release into a set of RPMs"
-	task 'rpm' => [:package, :rpm_verbosity] do
+	task 'rpm' => [:rpm_verbosity] do
 		test_setup
 		copy_tarball(@verbosity)
 		noisy_system(*(%w{./rpm/release/build.rb --single --include-nginx-alternatives} + ["--stage-dir=#{ENV['stage_dir'] || 'pkg'}", "--extra-packages=#{ENV['extra_packages'] || 'release/mock-repo'}"] + @build_verbosity))
 	end
 
 	desc "Build a Yum repository for the current release"
-	task 'yum' => [:package, :rpm_verbosity] do
+	task 'yum' => [:rpm_verbosity] do
 		test_setup(*%w{-p createrepo -p rubygem-gem2rpm})
 		copy_tarball(@verbosity)
-		unless noisy_system(*(%w{./rpm/release/build.rb --include-release} + ["--stage-dir=#{ENV['stage_dir'] || 'yum-repo'}", "--extra-packages=#{ENV['extra_packages'] || 'release/mock-repo'}"] + @build_verbosity))
+		distros = []
+		distros << ENV['build_distributions'] if ENV['build_distributions']
+		unless noisy_system(*(%w{./rpm/release/build.rb --include-release} + ["--stage-dir=#{ENV['stage_dir'] || 'yum-repo'}", "--extra-packages=#{ENV['extra_packages'] || 'release/mock-repo'}"] + distros + @build_verbosity))
       abort "Build failed!"
 	  end
 		repo=File.expand_path("#{ENV['stage_dir'] || 'yum-repo'}", 'rpm')

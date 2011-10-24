@@ -28,6 +28,7 @@ TEST_CXX_CFLAGS = "-Iext -Iext/common -Iext/nginx " <<
 	"#{TEST_COMMON_CFLAGS}"
 TEST_CXX_LDFLAGS = "#{TEST_COMMON_LIBRARY} #{TEST_BOOST_OXT_LIBRARY} #{LIBEV_LIBS} " <<
 	"#{PlatformInfo.curl_libs} " <<
+	"#{PlatformInfo.zlib_libs} " <<
 	"#{PlatformInfo.portability_ldflags} #{EXTRA_LDFLAGS}"
 TEST_CXX_OBJECTS = {
 	'test/cxx/CxxTestMain.o' => %w(
@@ -125,9 +126,13 @@ TEST_CXX_OBJECTS = {
 		test/cxx/ScgiRequestParserTest.cpp
 		ext/nginx/ScgiRequestParser.h
 		ext/common/StaticString.h),
-	'test/cxx/HttpStatusExtractorTest.o' => %w(
-		test/cxx/HttpStatusExtractorTest.cpp
-		ext/nginx/HttpStatusExtractor.h),
+	'test/cxx/DechunkerTest.o' => %w(
+		test/cxx/DechunkerTest.cpp
+		ext/common/Utils/Dechunker.h),
+	'test/cxx/HttpHeaderBuffererTest.o' => %w(
+		test/cxx/HttpHeaderBuffererTest.cpp
+		ext/common/Utils/HttpHeaderBufferer.h
+		ext/common/Utils/StreamBoyerMooreHorspool.h),
 	'test/cxx/LoggingTest.o' => %w(
 		test/cxx/LoggingTest.cpp
 		ext/common/LoggingAgent/LoggingServer.h
@@ -183,6 +188,10 @@ TEST_CXX_OBJECTS = {
 		test/cxx/BufferedIOTest.cpp
 		ext/common/Utils/BufferedIO.h
 		ext/common/Utils/Timer.h),
+	'test/cxx/MessageIOTest.o' => %w(
+		test/cxx/MessageIOTest.cpp
+		ext/common/Utils/MessageIO.h
+		ext/common/Utils/IOUtils.h),
 	'test/cxx/VariantMapTest.o' => %w(
 		test/cxx/VariantMapTest.cpp
 		ext/common/MessageChannel.h
