@@ -13,13 +13,13 @@ passenger-release package from the {main repository}[http://passenger.stealthymo
 need import the GPG key first. Using RPM to install will work without the
 import and subsequent calls to yum will then have the key locally.)
 
-[Fedora Core 16] <code>rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc</code><br/>
+[Fedora Core 16] <code>rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc</code><br>
                  <code>yum install http://{http://passenger.stealthymonkeys.com/fedora/16/passenger-release.noarch.rpm}[link:http://passenger.stealthymonkeys.com/fedora/16/passenger-release.noarch.rpm]</code>
-[Fedora Core 15] <code>rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc</code><br/>
+[Fedora Core 15] <code>rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc</code><br>
                  <code>yum install http://{http://passenger.stealthymonkeys.com/fedora/15/passenger-release.noarch.rpm}[link:http://passenger.stealthymonkeys.com/fedora/15/passenger-release.noarch.rpm]</code>
-[Fedora Core 14] <code>rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc</code><br/>
+[Fedora Core 14] <code>rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc</code><br>
                  <code>yum install  http://{http://passenger.stealthymonkeys.com/fedora/14/passenger-release.noarch.rpm}[link:http://passenger.stealthymonkeys.com/fedora/14/passenger-release.noarch.rpm]</code>
-[RHEL / CentOS / ScientificLinux 6.x + EPEL] <code>rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc</code><br/>
+[RHEL / CentOS / ScientificLinux 6.x + EPEL] <code>rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc</code><br>
                                              <code>yum install http://{http://passenger.stealthymonkeys.com/rhel/6/passenger-release.noarch.rpm}[link:http://passenger.stealthymonkeys.com/rhel/6/passenger-release.noarch.rpm]</code>
 [RHEL / CentOS / ScientificLinux 5.x + EPEL] <code>rpm -Uvh http://{http://passenger.stealthymonkeys.com/rhel/5/passenger-release.noarch.rpm}[link:http://passenger.stealthymonkeys.com/rhel/5/passenger-release.noarch.rpm]</code>
 
