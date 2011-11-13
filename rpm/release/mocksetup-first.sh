@@ -6,11 +6,23 @@ BUILD_VERBOSITY=${BUILD_VERBOSITY:-0}
 
 declare -a required_packages=(mock m4)
 if grep -iq fedora /etc/redhat-release ; then
-		# fedora-packager has rpmbuild-md5 for the SRPM
-		required_packages=( ${required_packages[@]} fedora-packager )
+	# fedora-packager has rpmbuild-md5 for the SRPM
+	required_packages=( ${required_packages[@]} fedora-packager )
 else
-		required_packages=( ${required_packages[@]} rpm-build )
+	required_packages=( ${required_packages[@]} rpm-build )
 fi
+
+# borrow is_el5 from the spec file
+specfile=`dirname $0`/../passenger.spec
+is_el5=`grep '%define is_el5' $specfile | awk '{print $3}'`
+is_el5=`rpm -E "$is_el5"`
+
+if [ 0 == $is_el5 ] && gpg --list-keys `rpm -E '%{_gpg_name}'` > /dev/null 2>&1 ; then
+	required_packages=( ${required_packages[@]} rpm-sign )
+fi
+
+echo "${required_packages[@]}"
+exit
 
 while getopts ':p:' opt
 do
