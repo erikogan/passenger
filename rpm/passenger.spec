@@ -13,7 +13,7 @@
   %define passenger_version 3.0.9
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 1%{?dist}
+  %define passenger_release 2%{?dist}
 %endif
 %define passenger_epoch 1
 
@@ -99,6 +99,14 @@
 
 # They DID standardize, now just legacy support:
 %define sharedir %{?is_el5:%{_datadir}}%{?!is_el5:%{_datarootdir}}
+
+%if %{?fc16:1}%{?!fc16:%{?fc15:1}%{?!fc15:0}}
+  %define unused_patch 1
+  %define nginx_unused_flag -Wno-unused-but-set-variable
+%else
+  %define unused_patch 0
+  %define nginx_unused_flag %nil
+%endif
 
 Summary: Easy and robust Ruby web application deployment
 Name: rubygem-%{gemname}
@@ -319,8 +327,8 @@ This package includes an nginx server with Passenger compiled in.
 # the *.dot files in the process. Prevent that removal
 # %patch1 -p1
 
-%if %{?fc15:1}%{?!fc15:0}
-# Nginx doesn't compile with -Wall on FC15, add an argument to the
+%if %unused_patch
+# Nginx doesn't compile with -Wall on F15 or F16, add an argument to the
 # Passenger Standalone build to ignore the fatal warning
 %patch2 -p1
 %endif
@@ -421,7 +429,7 @@ chmod +x new_path/source-highlight
   # smarter about it than 4.1? It feels wrong to do this, but I don't see
   # an easier way out.
   %if !%{is_el5}
-    %define nginx_ccopt %{optflags} %{?fc15:-Wno-unused-but-set-variable}
+    %define nginx_ccopt %{optflags} %{nginx_unused_flag}
   %else
     %define nginx_ccopt %(echo "%{optflags}" | sed -e 's/SOURCE=2/& -Wno-unused/')
   %endif
@@ -714,6 +722,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sat Nov 12 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.9-2
+- Added support for Fedora 16
+- Added explicit Provides: tags to avoid problems with Requires: in sub-packages (Thanks to Viliam Pucik)
+
 * Sun Sep  4 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.9-1
 - Added a new SELinux boolean (httpd_passenger_use_shared_libs) to allow
   applications to load gems with native code. It is off by default.
