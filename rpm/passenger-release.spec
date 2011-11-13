@@ -1,7 +1,7 @@
 Summary: Phusion Passenger release RPM/Yum repository configuration
 Name: passenger-release
 Version: 3
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: MIT
 Group: Group: System Environment/Base
 URL: http://passenger.stealthymonkeys.com/
