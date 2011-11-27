@@ -10,10 +10,10 @@
 
 %define gemname passenger
 %if %{?passenger_version:0}%{?!passenger_version:1}
-  %define passenger_version 3.0.9
+  %define passenger_version 3.0.10
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 2%{?dist}
+  %define passenger_release 1%{?dist}
 %endif
 %define passenger_epoch 1
 
@@ -722,6 +722,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sun Nov 27 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.10-1
+- Bump to version 3.0.10
+
 * Sat Nov 12 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.9-2
 - Added support for Fedora 16
 - Added explicit Provides: tags to avoid problems with Requires: in sub-packages (Thanks to Viliam Pucik)
