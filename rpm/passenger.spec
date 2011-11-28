@@ -10,7 +10,7 @@
 
 %define gemname passenger
 %if %{?passenger_version:0}%{?!passenger_version:1}
-  %define passenger_version 3.0.10
+  %define passenger_version 3.0.11
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
   %define passenger_release 1%{?dist}
@@ -18,7 +18,7 @@
 %define passenger_epoch 1
 
 %if %{?nginx_version:0}%{?!nginx_version:1}
-  %define nginx_version 1.0.6
+  %define nginx_version 1.0.10
 %endif
 
 %define nginx_release %{passenger_version}_%{passenger_release}
@@ -722,18 +722,24 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Nov 28 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.11-1
+- Bump version to 3.0.11
+
 * Sun Nov 27 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.10-1
-- Bump to version 3.0.10
+- Bump version to 3.0.10
+- Bump nginx version to 1.0.10
 
 * Sat Nov 12 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.9-2
 - Added support for Fedora 16
-- Added explicit Provides: tags to avoid problems with Requires: in sub-packages (Thanks to Viliam Pucik)
+- Added explicit Provides: tags to avoid problems with Requires: in
+  sub-packages (Thanks to Viliam Pucik)
 
 * Sun Sep  4 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.9-1
 - Added a new SELinux boolean (httpd_passenger_use_shared_libs) to allow
   applications to load gems with native code. It is off by default.
   Thanks to Darrell for this patch!
-- Moved Apache's PassengerTempDir to /var/run/passenger. A better solution than the policy module changes:
+- Moved Apache's PassengerTempDir to /var/run/passenger. A better solution than
+  the policy module changes:
   https://bugzilla.redhat.com/show_bug.cgi?id=730837
 - Bump Passenger to 3.0.9
 - Bump nginx to 1.0.6
