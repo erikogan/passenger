@@ -109,11 +109,6 @@ p#tm {
         <dd>yum install <a
         href="fedora/15/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/fedora/15/passenger-release.noarch.rpm</a></dd>
 
-        <dt><strong>Fedora Core 14</strong>:</dt>
-        <dd>rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc</dd>
-        <dd>yum install <a
-        href="fedora/14/passenger-release.noarch.rpm">http://<!--#echo var="SERVER_NAME" -->/fedora/14/passenger-release.noarch.rpm</a></dd>
-
         <dt><strong>RHEL 6 / CentOS 6 / ScientificLinux 6</strong>: (note, these packages depend on <a
         href="http://fedoraproject.org/wiki/EPEL">EPEL</a>)</dt>
         <dd>rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc</dd>
