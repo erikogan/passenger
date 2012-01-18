@@ -137,6 +137,10 @@ OptionParser.new do |opts|
 		options[:skip_base] = true
 	end
 
+  opts.on('-o', '--only-native-libs', 'Skip the base build and only rebuild native-libs packages') do
+    options[:only_native_libs] = true
+  end
+
 	opts.on_tail("-h", "--help", "Show this message") do
 		puts opts
 		exit
@@ -224,6 +228,9 @@ begin
 			macros["#{match[1]}"] = %x[#{match[2]} #{match[3]}].chomp
 		end
 	end
+
+  # This is kind of a gross hack, but it DOES work (for now)
+  macros['only_native_libs'] = '1}' if options[:only_native_libs]
 
 	args = macros.keys.inject([]) do |m,k|
 		m.push('-e')

@@ -85,6 +85,20 @@ namespace :package do
 		FileUtils.cp('rpm/release/RPM-GPG-KEY-stealthymonkeys', "#{repo}/RPM-GPG-KEY-stealthymonkeys.asc")
 	end
 
+  desc "Build a passenger-native-libs package for the current system"
+  task 'rpm-native-libs' => [:rpm_verbosity] do
+    test_setup
+    copy_tarball(@verbosity)
+    noisy_system(*(%w{./rpm/release/build.rb --single --only-native-libs} + ["--stage-dir=#{ENV['stage_dir'] || 'pkg'}"] + @build_verbosity))
+  end
+
+  desc "Add passenger-native-libs packages to the stage_dir directory"
+  task 'yum-native-libs' => [:rpm_verbosity] do
+    test_setup
+    copy_tarball(@verbosity)
+    noisy_system(*(%w{./rpm/release/build.rb --only-native-libs} + ["--stage-dir=#{ENV['stage_dir'] || 'yum-repo'}"] + @build_verbosity))
+  end
+
 	task 'rpm_verbosity' do
 		if ENV['verbosity'] &&  ENV['verbosity'] =~ /(true|yes|on)/i
 			@verbosity = 1
