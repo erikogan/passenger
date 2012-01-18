@@ -142,10 +142,10 @@ Requires: rubygem(daemon_controller) >= 0.2.5
 Requires: rubygem(rack)
 BuildRequires: ruby-devel
 BuildRequires: gcc-c++
+BuildRequires: rubygem(rake) >= 0.8.1
 %if !%{only_native_libs}
 BuildRequires: httpd-devel
 BuildRequires: rubygems
-BuildRequires: rubygem(rake) >= 0.8.1
 BuildRequires: rubygem(rack)
 BuildRequires: rubygem(fastthread) >= 1.0.1
 BuildRequires: pcre-devel
@@ -645,7 +645,7 @@ if [ $1 == 1 ]; then
 	    %{_mandir}/man3/nginx_passenger.3pm.gz
   fixfiles -R nginx-passenger restore
   # It appears that the EPEL nginx package has no SELinux configuration, use our policy for now
-  fixfiles -R nginx restore 
+  fixfiles -R nginx restore
 fi
 
 %postun -n nginx-passenger
