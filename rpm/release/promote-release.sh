@@ -11,7 +11,7 @@ pushd STAGING
 
 $symlinks
 
-for dir in {fedora/1{5,4,6},rhel/{5,6}}/{x86_64,i386}
+for dir in {fedora/1{6,5},rhel/{6,5}}/{x86_64,i386}
 do
   echo $dir -------------
   createrepo $PWD/$dir
