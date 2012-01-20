@@ -1,4 +1,4 @@
-policy_module(rubygem_passenger, 1.5)
+policy_module(rubygem_passenger, 1.5.5)
 
 require {
   role system_r;
@@ -18,6 +18,10 @@ domain_auto_trans(httpd_t,httpd_passenger_helper_exec_t,httpd_passenger_helper_t
 # For ps 
 kernel_list_proc(httpd_passenger_helper_t)
 kernel_search_proc(httpd_passenger_helper_t)
+kernel_read_system_state(httpd_passenger_helper_t)
+domain_dontaudit_search_all_domains_state(httpd_passenger_helper_t)
+domain_dontaudit_read_all_domains_state(httpd_passenger_helper_t)
+
 # - these don't work because the process files & dirs all have their own domains as types
 # kernel_getattr_proc(httpd_passenger_helper_t)
 # kernel_getattr_proc_files(httpd_passenger_helper_t)

@@ -10,10 +10,11 @@
 
 %define gemname passenger
 %if %{?passenger_version:0}%{?!passenger_version:1}
+  # From Passenger Source
   %define passenger_version 3.0.11
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 1%{?dist}
+  %define passenger_release 8%{?dist}
 %endif
 %define passenger_epoch 1
 
@@ -520,7 +521,7 @@ mkdir -p %{buildroot}/%{httpd_confdir}
 mkdir -p %{buildroot}/%{_var}/log/passenger-analytics
 
 # The %ghost must be created?
-mkdir -p %{buildroot}/%{_var}/run/passenger
+mkdir -p %{buildroot}/%{_var}/run/rubygem-passenger
 
 # I should probably figure out how to get these into the gem
 cp -ra agents %{buildroot}/%{geminstdir}
@@ -689,7 +690,7 @@ rm -rf %{buildroot}
 %{geminstdir}/agents/PassengerWatchdog
 %{sharedir}/selinux/packages/%{name}/%{name}.pp
 %{_var}/log/passenger-analytics
-%ghost %dir %{_var}/run/passenger
+%ghost %dir %{_var}/run/rubygem-passenger
 
 %files -n passenger-standalone
 %doc doc/Users\ guide\ Standalone.html
@@ -722,6 +723,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Dec 21 2011 Darrell Fuhriman <darrell@renewfund.com> - 1:3.0.11-7
+- Relocated PassengerTempDir to avoid conflicts with system selinux-policy
+- Reduced the amount of unecessary log noise on {CentOS/RHEL}{5,6}
+
 * Mon Nov 28 2011 Erik Ogan <erik@steathymonkeys.com> - 1:3.0.11-1
 - Bump version to 3.0.11
 
