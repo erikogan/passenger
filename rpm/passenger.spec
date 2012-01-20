@@ -723,7 +723,7 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Wed Dec 21 2011 Darrell Fuhriman <darrell@renewfund.com> - 1:3.0.11-7
+* Wed Dec 21 2011 Darrell Fuhriman <darrell@renewfund.com> - 1:3.0.11-8
 - Relocated PassengerTempDir to avoid conflicts with system selinux-policy
 - Reduced the amount of unecessary log noise on {CentOS/RHEL}{5,6}
 

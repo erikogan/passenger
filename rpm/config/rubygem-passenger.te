@@ -1,4 +1,4 @@
-policy_module(rubygem_passenger, 1.5.5)
+policy_module(rubygem_passenger, 1.6)
 
 require {
   role system_r;
