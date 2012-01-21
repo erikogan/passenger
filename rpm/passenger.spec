@@ -14,12 +14,12 @@
   %define passenger_version 3.0.11
 %endif
 %if %{?passenger_release:0}%{?!passenger_release:1}
-  %define passenger_release 8%{?dist}
+  %define passenger_release 9%{?dist}
 %endif
 %define passenger_epoch 1
 
 %if %{?nginx_version:0}%{?!nginx_version:1}
-  %define nginx_version 1.0.10
+  %define nginx_version 1.0.11
 %endif
 
 %define nginx_release %{passenger_version}_%{passenger_release}
@@ -723,6 +723,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sat Jan 21 2012  Erik Ogan <erik@steathymonkeys.com> - 1:3.0.11-9
+- Bump preferred nginx to 1.0.11
+
 * Wed Dec 21 2011 Darrell Fuhriman <darrell@renewfund.com> - 1:3.0.11-8
 - Relocated PassengerTempDir to avoid conflicts with system selinux-policy
 - Reduced the amount of unecessary log noise on {CentOS/RHEL}{5,6}
