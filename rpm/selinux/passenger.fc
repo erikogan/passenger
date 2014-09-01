@@ -1,0 +1,12 @@
+/usr/lib(64)?/passenger/agents/PassengerHelperAgent	system_u:object_r:httpd_passenger_helper_exec_t:s0
+/usr/lib(64)?/passenger/agents/.*	system_u:object_r:httpd_exec_t:s0
+/var/log/passenger-analytics	system_u:object_r:httpd_log_t:s0
+# This dir is created by the parent, and needs to be read by the child.
+# Keep it with httpd_var_run_t perms, and allow that in .te
+/var/run/rubygem-passenger	system_u:object_r:httpd_var_run_t:s0
+/var/run/rubygem-passenger/(passenger.*)(/.*)?	system_u:object_r:httpd_var_run_t:s0
+# EPEL's nginx package doesn't have any SELlinux support??
+/usr/sbin/nginx(.passenger)?	system_u:object_r:httpd_exec_t:s0
+/var/log/nginx(/.*)?		system_u:object_r:httpd_log_t:s0
+/var/lib/nginx(/.*)?		system_u:object_r:httpd_log_t:s0
+/var/lib/nginx/tmp(/.*)?	system_u:object_r:httpd_tmp_t:s0

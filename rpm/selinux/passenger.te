@@ -1,0 +1,96 @@
+policy_module(passenger, 1.7)
+
+require {
+  role system_r;
+  type httpd_t, httpd_tmp_t, httpd_var_run_t;
+};
+
+type httpd_passenger_helper_t;
+type httpd_passenger_helper_exec_t;
+type httpd_passenger_helper_tmp_t;
+
+## httpd_passenger_helper_t
+role system_r types httpd_passenger_helper_t;
+
+domain_type(httpd_passenger_helper_t)
+domain_entry_file(httpd_passenger_helper_t,httpd_passenger_helper_exec_t)
+domain_auto_trans(httpd_t,httpd_passenger_helper_exec_t,httpd_passenger_helper_t)
+
+# Temporary files
+files_tmp_file(httpd_passenger_helper_tmp_t)
+files_tmp_filetrans(httpd_passenger_helper_t,httpd_passenger_helper_tmp_t,file)
+allow httpd_passenger_helper_t httpd_passenger_helper_tmp_t:file { manage_file_perms setattr_file_perms };
+# It seems like this should not be necessary, that the directories would be created with the right type.
+files_manage_generic_tmp_dirs(httpd_passenger_helper_t)
+
+allow httpd_passenger_helper_t self:capability { setuid chown fsetid setgid fowner dac_override };
+
+# For ps
+kernel_list_proc(httpd_passenger_helper_t)
+kernel_search_proc(httpd_passenger_helper_t)
+kernel_read_system_state(httpd_passenger_helper_t)
+domain_dontaudit_search_all_domains_state(httpd_passenger_helper_t)
+domain_dontaudit_read_all_domains_state(httpd_passenger_helper_t)
+
+# - these don't work because the process files & dirs all have their own domains as types
+# kernel_getattr_proc(httpd_passenger_helper_t)
+# kernel_getattr_proc_files(httpd_passenger_helper_t)
+
+corecmd_exec_bin(httpd_passenger_helper_t)
+auth_use_nsswitch(httpd_passenger_helper_t)
+miscfiles_read_localization(httpd_passenger_helper_t)
+dev_read_urand(httpd_passenger_helper_t)
+
+apache_domtrans(httpd_passenger_helper_t)
+apache_sigchld(httpd_passenger_helper_t)
+apache_append_log(httpd_passenger_helper_t)
+apache_read_sys_content(httpd_passenger_helper_t)
+apache_read_tmp_files(httpd_passenger_helper_t)
+
+# And back again
+passenger_helper_domtrans(httpd_t)
+passenger_helper_use_sockets(httpd_t)
+
+bool httpd_passenger_use_shared_libs false;
+
+if (httpd_passenger_use_shared_libs) {
+  libs_use_ld_so(httpd_passenger_helper_t)
+  libs_use_shared_libs(httpd_passenger_helper_t)
+  libs_exec_ld_so(httpd_passenger_helper_t)
+  libs_exec_lib_files(httpd_passenger_helper_t)
+}
+
+# Added with Passenger 4
+fs_rw_anon_inodefs_files(httpd_passenger_helper_t)
+userdom_use_inherited_user_terminals(httpd_passenger_helper_t)
+# These are unnecessary
+kernel_dontaudit_list_all_sysctls(httpd_passenger_helper_t)
+domain_dontaudit_getsession_all_domains(httpd_passenger_helper_t)
+
+# There's no macro for this, and we definitely need it (connectto for nginx)
+allow httpd_passenger_helper_t httpd_t:unix_stream_socket { read write getattr connectto };
+
+### Make sure we need these
+allow httpd_passenger_helper_t httpd_t:fifo_file write;
+
+# # There is no interface macro for writing httpd_tmp_t files & sockets
+# These are still required for nginx-passenger. We may want to move them into their own module
+allow httpd_passenger_helper_t httpd_tmp_t:dir { add_entry_dir_perms del_entry_dir_perms };
+allow httpd_passenger_helper_t httpd_tmp_t:file { manage_file_perms setattr_file_perms };
+allow httpd_passenger_helper_t httpd_tmp_t:sock_file { manage_file_perms setattr_file_perms };
+
+# Nor var_run files & sockets
+# These are probably only required for mod_passenger now
+allow httpd_passenger_helper_t httpd_t:file { getattr };
+allow httpd_passenger_helper_t httpd_var_run_t:dir { rw_dir_perms };
+allow httpd_passenger_helper_t httpd_var_run_t:file { write_file_perms setattr_file_perms };
+allow httpd_passenger_helper_t httpd_var_run_t:sock_file { write_file_perms delete_file_perms setattr_file_perms };
+
+allow httpd_passenger_helper_t self:capability sys_ptrace;
+allow httpd_passenger_helper_t self:fifo_file { rw_file_perms };
+allow httpd_passenger_helper_t self:process { setsched signal sigkill setexec };
+allow httpd_passenger_helper_t self:unix_stream_socket connectto;
+
+# Left over from before we had our own domain. Probably still needed, but check
+allow httpd_t httpd_tmp_t:sock_file { rw_file_perms setattr_file_perms };
+allow httpd_t self:capability { fowner sys_resource fsetid };

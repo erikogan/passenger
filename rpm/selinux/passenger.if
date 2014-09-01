@@ -1,0 +1,40 @@
+## <summary>policy for httpd_passenger_helper_t</summary>
+
+########################################
+## <summary>
+##	Transition from httpd_passenger_helper_t (back) to the named domain.
+##	(i.e. httpd_t)
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition.
+##	</summary>
+## </param>
+#
+interface(`passenger_helper_domtrans',`
+	gen_require(`
+		type httpd_passenger_helper_t, bin_t;
+	')
+
+	allow $1 bin_t:file entrypoint;
+	allow $1 httpd_passenger_helper_t:process sigchld;
+')
+
+########################################
+## <summary>
+##	Allow the named domain to communicate via the httpd_passenger_helper_t
+##	domain sockets.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed communicate
+##	</summary>
+## </param>
+#
+interface(`passenger_helper_use_sockets',`
+	gen_require(`
+		type httpd_passenger_helper_t;
+	')
+
+	allow $1 httpd_passenger_helper_t:unix_stream_socket { rw_stream_socket_perms connectto };
+')
